@@ -1,0 +1,81 @@
+<mxfile host="app.diagrams.net" modified="2026-10-11T06:00:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram id="sequence-reservation" name="Sequence Đặt bàn">
+    <mxGraphModel dx="1600" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="SEQUENCE DIAGRAM — UC-02 ĐẶT BÀN" style="text;html=1;align=center;verticalAlign=middle;fontSize=26;fontStyle=1;fontColor=#1F2937;" vertex="1" parent="1">
+          <mxGeometry x="180" y="20" width="1240" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="subtitle" value="Liên kết yêu cầu: FR-03 Xem bàn trống, FR-04 Đặt bàn" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="350" y="62" width="900" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor" value="Nhân viên tiếp nhận" style="shape=umlActor;html=1;whiteSpace=wrap;verticalLabelPosition=bottom;verticalAlign=top;align=center;fontSize=17;fontColor=#0F172A;strokeColor=#334155;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="105" y="110" width="110" height="85" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui" value="&lt;&lt;boundary&gt;&gt;&lt;br&gt;&lt;b&gt;Màn hình đặt bàn&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=2;fontSize=17;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="405" y="115" width="220" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="service" value="&lt;&lt;control&gt;&gt;&lt;br&gt;&lt;b&gt;ReservationService&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;strokeWidth=2;fontSize=17;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="790" y="115" width="220" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="db" value="&lt;&lt;database&gt;&gt;&lt;br&gt;&lt;b&gt;Cơ sở dữ liệu&lt;/b&gt;" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#DCFCE7;strokeColor=#16A34A;strokeWidth=2;fontSize=17;fontColor=#0F172A;" vertex="1" parent="1">
+          <mxGeometry x="1195" y="105" width="205" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="life-actor" style="endArrow=none;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="160" y="205" as="sourcePoint"/><mxPoint x="160" y="1325" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="life-ui" style="endArrow=none;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="515" y="185" as="sourcePoint"/><mxPoint x="515" y="1325" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="life-service" style="endArrow=none;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="900" y="185" as="sourcePoint"/><mxPoint x="900" y="1325" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="life-db" style="endArrow=none;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="1298" y="195" as="sourcePoint"/><mxPoint x="1298" y="1325" as="targetPoint"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="act-ui-1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#BAE6FD;strokeColor=#0284C7;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="507" y="220" width="16" height="510" as="geometry"/></mxCell>
+        <mxCell id="act-service-1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDE68A;strokeColor=#D97706;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="892" y="360" width="16" height="275" as="geometry"/></mxCell>
+        <mxCell id="act-db-1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#BBF7D0;strokeColor=#16A34A;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="1290" y="405" width="16" height="95" as="geometry"/></mxCell>
+        <mxCell id="act-ui-2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#BAE6FD;strokeColor=#0284C7;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="507" y="760" width="16" height="505" as="geometry"/></mxCell>
+        <mxCell id="act-service-2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDE68A;strokeColor=#D97706;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="892" y="805" width="16" height="415" as="geometry"/></mxCell>
+        <mxCell id="act-db-2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#BBF7D0;strokeColor=#16A34A;strokeWidth=1.5;" vertex="1" parent="1"><mxGeometry x="1290" y="850" width="16" height="250" as="geometry"/></mxCell>
+
+        <mxCell id="m1" value="1. Chọn chức năng Đặt bàn" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="160" y="230" as="sourcePoint"/><mxPoint x="507" y="230" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m2" value="2. Hiển thị biểu mẫu đặt bàn" style="endArrow=open;dashed=1;html=1;rounded=0;strokeWidth=1.4;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="507" y="275" as="sourcePoint"/><mxPoint x="160" y="275" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m3" value="3. Nhập thời gian đến, kết thúc và số người" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="160" y="320" as="sourcePoint"/><mxPoint x="507" y="320" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m4" value="4. timBanTrong(thoiGian, soNguoi)" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="523" y="370" as="sourcePoint"/><mxPoint x="892" y="370" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m5" value="5. truyVanBanTrong(thoiGian, sucChua)" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="908" y="415" as="sourcePoint"/><mxPoint x="1290" y="415" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m6" value="6. Danh sách bàn phù hợp" style="endArrow=open;dashed=1;html=1;rounded=0;strokeWidth=1.4;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1290" y="460" as="sourcePoint"/><mxPoint x="908" y="460" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m7" value="7. Trả kết quả tìm kiếm" style="endArrow=open;dashed=1;html=1;rounded=0;strokeWidth=1.4;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="892" y="505" as="sourcePoint"/><mxPoint x="523" y="505" as="targetPoint"/></mxGeometry></mxCell>
+
+        <mxCell id="alt1" value="alt" style="swimlane;html=1;horizontal=1;startSize=28;collapsible=0;rounded=0;fillColor=none;swimlaneFillColor=#FFFFFF;strokeColor=#475569;strokeWidth=1.6;fontSize=15;fontStyle=1;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="285" y="530" width="1085" height="190" as="geometry"/></mxCell>
+        <mxCell id="guard1a" value="[Có bàn phù hợp]" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=2;fontColor=#166534;" vertex="1" parent="1"><mxGeometry x="300" y="558" width="200" height="25" as="geometry"/></mxCell>
+        <mxCell id="m8a" value="8a. Hiển thị danh sách bàn trống" style="endArrow=open;dashed=1;html=1;rounded=0;strokeWidth=1.4;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="507" y="595" as="sourcePoint"/><mxPoint x="160" y="595" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="sep1" style="endArrow=none;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1.2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="285" y="625" as="sourcePoint"/><mxPoint x="1370" y="625" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="guard1b" value="[Không có bàn phù hợp]" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=2;fontColor=#B91C1C;" vertex="1" parent="1"><mxGeometry x="300" y="632" width="230" height="25" as="geometry"/></mxCell>
+        <mxCell id="m8b" value="8b. Thông báo hết bàn, đề nghị chọn thời gian khác" style="endArrow=open;dashed=1;html=1;rounded=0;strokeWidth=1.4;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="507" y="680" as="sourcePoint"/><mxPoint x="160" y="680" as="targetPoint"/></mxGeometry></mxCell>
+
+        <mxCell id="m9" value="9. Chọn bàn, nhập tên và số điện thoại khách" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="160" y="770" as="sourcePoint"/><mxPoint x="507" y="770" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m10" value="10. taoDatBan(thongTinDatBan)" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="523" y="815" as="sourcePoint"/><mxPoint x="892" y="815" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m11" value="11. kiemTraLaiTinhTrangBan(tableId, thoiGian)" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="908" y="860" as="sourcePoint"/><mxPoint x="1290" y="860" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m12" value="12. Kết quả kiểm tra" style="endArrow=open;dashed=1;html=1;rounded=0;strokeWidth=1.4;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1290" y="900" as="sourcePoint"/><mxPoint x="908" y="900" as="targetPoint"/></mxGeometry></mxCell>
+
+        <mxCell id="alt2" value="alt" style="swimlane;html=1;horizontal=1;startSize=28;collapsible=0;rounded=0;fillColor=none;swimlaneFillColor=#FFFFFF;strokeColor=#475569;strokeWidth=1.6;fontSize=15;fontStyle=1;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="285" y="925" width="1085" height="350" as="geometry"/></mxCell>
+        <mxCell id="guard2a" value="[Bàn vẫn còn trống]" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=2;fontColor=#166534;" vertex="1" parent="1"><mxGeometry x="300" y="953" width="220" height="25" as="geometry"/></mxCell>
+        <mxCell id="m13" value="13. Lưu khách hàng và lượt đặt bàn" style="endArrow=block;html=1;rounded=0;strokeWidth=1.6;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="908" y="995" as="sourcePoint"/><mxPoint x="1290" y="995" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m14" value="14. Mã đặt bàn" style="endArrow=open;dashed=1;html=1;rounded=0;strokeWidth=1.4;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1290" y="1040" as="sourcePoint"/><mxPoint x="908" y="1040" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m15" value="15. Trả kết quả thành công" style="endArrow=open;dashed=1;html=1;rounded=0;strokeWidth=1.4;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="892" y="1085" as="sourcePoint"/><mxPoint x="523" y="1085" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m16" value="16. Hiển thị mã đặt bàn và thông tin xác nhận" style="endArrow=open;dashed=1;html=1;rounded=0;strokeWidth=1.4;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="507" y="1130" as="sourcePoint"/><mxPoint x="160" y="1130" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="sep2" style="endArrow=none;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1.2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="285" y="1160" as="sourcePoint"/><mxPoint x="1370" y="1160" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="guard2b" value="[Bàn vừa được người khác đặt]" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=2;fontColor=#B91C1C;" vertex="1" parent="1"><mxGeometry x="300" y="1167" width="280" height="25" as="geometry"/></mxCell>
+        <mxCell id="m17" value="17. Thông báo bàn không còn trống, yêu cầu chọn bàn khác" style="endArrow=open;dashed=1;html=1;rounded=0;strokeWidth=1.4;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="892" y="1210" as="sourcePoint"/><mxPoint x="523" y="1210" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m18" value="18. Hiển thị thông báo" style="endArrow=open;dashed=1;html=1;rounded=0;strokeWidth=1.4;fontSize=15;labelBackgroundColor=#FFFFFF;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="507" y="1250" as="sourcePoint"/><mxPoint x="160" y="1250" as="targetPoint"/></mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
