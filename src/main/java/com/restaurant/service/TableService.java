@@ -22,6 +22,9 @@ public class TableService {
         this.tableDAO = tableDAO;
     }
 
+    /**
+     * Tìm kiếm và lọc danh sách bàn.
+     */
     public List<RestaurantTable> search(
             String keyword,
             TableStatus status
@@ -30,6 +33,12 @@ public class TableService {
         return tableDAO.search(keyword, status);
     }
 
+    /**
+     * Thêm một bàn mới.
+     *
+     * Nếu số bàn đã từng bị xóa mềm thì kích hoạt lại
+     * bản ghi cũ thay vì tạo bản ghi trùng.
+     */
     public long addTable(
             String tableNumber,
             int capacity
@@ -42,6 +51,10 @@ public class TableService {
 
         validateCapacity(capacity);
 
+        /*
+         * Nếu bàn đang hoạt động thì không cho phép
+         * thêm một bàn có cùng số bàn.
+         */
         if (tableDAO.existsByTableNumber(
                 normalizedTableNumber,
                 null
@@ -51,12 +64,45 @@ public class TableService {
             );
         }
 
+        /*
+         * Kiểm tra bàn có từng bị xóa mềm hay không.
+         */
+        Long inactiveTableId =
+                tableDAO.findInactiveIdByTableNumber(
+                        normalizedTableNumber
+                );
+
+        /*
+         * Nếu bàn đã bị xóa mềm thì kích hoạt lại.
+         */
+        if (inactiveTableId != null) {
+            boolean reactivated =
+                    tableDAO.reactivate(
+                            inactiveTableId,
+                            capacity
+                    );
+
+            if (!reactivated) {
+                throw new IllegalArgumentException(
+                        "Không thể kích hoạt lại bàn"
+                );
+            }
+
+            return inactiveTableId;
+        }
+
+        /*
+         * Nếu số bàn chưa từng tồn tại thì tạo mới.
+         */
         return tableDAO.insert(
                 normalizedTableNumber,
                 capacity
         );
     }
 
+    /**
+     * Cập nhật thông tin và trạng thái bàn.
+     */
     public void updateTable(
             long id,
             String tableNumber,
@@ -85,6 +131,10 @@ public class TableService {
 
         validateCapacity(capacity);
 
+        /*
+         * Kiểm tra một bàn đang hoạt động khác có
+         * sử dụng số bàn này hay chưa.
+         */
         if (tableDAO.existsByTableNumber(
                 normalizedTableNumber,
                 id
@@ -108,6 +158,9 @@ public class TableService {
         }
     }
 
+    /**
+     * Xóa mềm một bàn đang trống.
+     */
     public void deleteTable(long id)
             throws SQLException {
 
@@ -126,6 +179,9 @@ public class TableService {
         }
     }
 
+    /**
+     * Kiểm tra và chuẩn hóa số bàn.
+     */
     private String validateAndNormalizeTableNumber(
             String tableNumber
     ) {
@@ -157,6 +213,9 @@ public class TableService {
         return normalized;
     }
 
+    /**
+     * Kiểm tra sức chứa của bàn.
+     */
     private void validateCapacity(int capacity) {
         if (capacity <= 0 || capacity > 50) {
             throw new IllegalArgumentException(

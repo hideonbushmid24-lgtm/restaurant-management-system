@@ -4,12 +4,19 @@ import com.restaurant.config.DatabaseConnection;
 import com.restaurant.model.RestaurantTable;
 import com.restaurant.model.TableStatus;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TableDAO {
 
+    /**
+     * Tìm kiếm và lọc danh sách bàn đang hoạt động.
+     */
     public List<RestaurantTable> search(
             String keyword,
             TableStatus status
@@ -82,6 +89,9 @@ public class TableDAO {
         }
     }
 
+    /**
+     * Thêm một bàn hoàn toàn mới.
+     */
     public long insert(
             String tableNumber,
             int capacity
@@ -109,7 +119,14 @@ public class TableDAO {
         ) {
             statement.setString(1, tableNumber);
             statement.setInt(2, capacity);
-            statement.executeUpdate();
+
+            int affectedRows = statement.executeUpdate();
+
+            if (affectedRows != 1) {
+                throw new SQLException(
+                        "Không thể thêm bàn mới"
+                );
+            }
 
             try (ResultSet generatedKeys =
                          statement.getGeneratedKeys()) {
@@ -125,6 +142,12 @@ public class TableDAO {
         }
     }
 
+    /**
+     * Cập nhật thông tin và trạng thái bàn.
+     *
+     * Cho phép chuyển từ RESERVED hoặc OCCUPIED
+     * quay lại AVAILABLE.
+     */
     public boolean update(
             long id,
             String tableNumber,
@@ -138,8 +161,7 @@ public class TableDAO {
                     capacity = ?,
                     status = ?
                 WHERE id = ?
-                    AND active = TRUE
-                    AND status = 'AVAILABLE'
+                  AND active = TRUE
                 """;
 
         try (
@@ -158,6 +180,12 @@ public class TableDAO {
         }
     }
 
+    /**
+     * Xóa mềm một bàn đang trống.
+     *
+     * Bàn được chuyển sang INACTIVE và không còn
+     * xuất hiện trong danh sách bàn đang hoạt động.
+     */
     public boolean deactivate(long id)
             throws SQLException {
 
@@ -167,6 +195,7 @@ public class TableDAO {
                     status = 'INACTIVE'
                 WHERE id = ?
                   AND active = TRUE
+                  AND status = 'AVAILABLE'
                 """;
 
         try (
@@ -182,6 +211,83 @@ public class TableDAO {
         }
     }
 
+    /**
+     * Tìm ID của bàn đã bị xóa mềm.
+     *
+     * Trả về null nếu không tìm thấy.
+     */
+    public Long findInactiveIdByTableNumber(
+            String tableNumber
+    ) throws SQLException {
+
+        String sql = """
+                SELECT id
+                FROM restaurant_tables
+                WHERE table_number = ?
+                  AND active = FALSE
+                LIMIT 1
+                """;
+
+        try (
+                Connection connection =
+                        DatabaseConnection.getConnection();
+
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
+            statement.setString(1, tableNumber);
+
+            try (ResultSet resultSet =
+                         statement.executeQuery()) {
+
+                if (resultSet.next()) {
+                    return resultSet.getLong("id");
+                }
+
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Kích hoạt lại một bàn đã bị xóa mềm.
+     *
+     * Bàn được đưa về trạng thái AVAILABLE.
+     */
+    public boolean reactivate(
+            long id,
+            int capacity
+    ) throws SQLException {
+
+        String sql = """
+                UPDATE restaurant_tables
+                SET capacity = ?,
+                    status = 'AVAILABLE',
+                    active = TRUE
+                WHERE id = ?
+                  AND active = FALSE
+                """;
+
+        try (
+                Connection connection =
+                        DatabaseConnection.getConnection();
+
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
+            statement.setInt(1, capacity);
+            statement.setLong(2, id);
+
+            return statement.executeUpdate() == 1;
+        }
+    }
+
+    /**
+     * Kiểm tra số bàn đang hoạt động đã tồn tại chưa.
+     *
+     * excludedId được sử dụng khi sửa bàn để loại trừ
+     * chính bàn đang được cập nhật.
+     */
     public boolean existsByTableNumber(
             String tableNumber,
             Long excludedId
@@ -223,6 +329,9 @@ public class TableDAO {
         }
     }
 
+    /**
+     * Chuyển dữ liệu ResultSet thành RestaurantTable.
+     */
     private RestaurantTable mapRow(
             ResultSet resultSet
     ) throws SQLException {
