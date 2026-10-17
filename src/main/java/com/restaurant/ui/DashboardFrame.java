@@ -8,6 +8,8 @@ import com.restaurant.model.User;
 import com.restaurant.service.MenuService;
 import com.restaurant.service.ReservationService;
 import com.restaurant.service.TableService;
+import com.restaurant.dao.OrderDAO;
+import com.restaurant.service.OrderService;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -202,7 +204,7 @@ public class DashboardFrame extends JFrame {
         );
 
         menuButton.addActionListener(
-                event -> openMenuFrame()
+                event -> openOrderFrame()
         );
 
         kitchenButton.addActionListener(
@@ -339,19 +341,33 @@ public class DashboardFrame extends JFrame {
         frame.setVisible(true);
     }
 
-    private void openMenuFrame() {
-        MenuDAO menuDAO =
-                new MenuDAO();
+    private void openOrderFrame() {
+    OrderService orderService =
+            new OrderService(
+                    new OrderDAO()
+            );
 
-        MenuService menuService =
-                new MenuService(menuDAO);
+    MenuService menuService =
+            new MenuService(
+                    new MenuDAO()
+            );
 
-        MenuFrame menuFrame =
-                new MenuFrame(menuService);
+    TableService tableService =
+            new TableService(
+                    new TableDAO()
+            );
 
-        menuFrame.setLocationRelativeTo(this);
-        menuFrame.setVisible(true);
-    }
+    OrderFrame orderFrame =
+            new OrderFrame(
+                    orderService,
+                    menuService,
+                    tableService,
+                    currentUser
+            );
+
+    orderFrame.setLocationRelativeTo(this);
+    orderFrame.setVisible(true);
+}
 
     private String getRoleDisplayName(Role role) {
         if (role == null) {
