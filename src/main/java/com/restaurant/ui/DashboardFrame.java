@@ -1,47 +1,76 @@
 package com.restaurant.ui;
 
+import com.restaurant.dao.MenuDAO;
+import com.restaurant.dao.ReservationDAO;
+import com.restaurant.dao.TableDAO;
 import com.restaurant.model.Role;
 import com.restaurant.model.User;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-
-import com.restaurant.dao.TableDAO;
+import com.restaurant.service.MenuService;
+import com.restaurant.service.ReservationService;
 import com.restaurant.service.TableService;
 
-import com.restaurant.dao.ReservationDAO;
-import com.restaurant.service.ReservationService;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
 
 public class DashboardFrame extends JFrame {
 
     private final User currentUser;
     private final Runnable logoutAction;
 
+    private JButton tableButton;
+    private JButton reservationButton;
+    private JButton menuButton;
+    private JButton kitchenButton;
+    private JButton paymentButton;
+
     public DashboardFrame(
             User currentUser,
             Runnable logoutAction
     ) {
+        if (currentUser == null) {
+            throw new IllegalArgumentException(
+                    "Người dùng hiện tại không được null"
+            );
+        }
+
         this.currentUser = currentUser;
         this.logoutAction = logoutAction;
 
         initializeFrame();
-        initializeComponents();
+        createLayout();
+        configurePermissions();
     }
 
     private void initializeFrame() {
         setTitle("Hệ thống quản lý nhà hàng");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(900, 600);
         setMinimumSize(new Dimension(850, 550));
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private void initializeComponents() {
+    private void createLayout() {
         setLayout(new BorderLayout());
 
-        add(createHeaderPanel(), BorderLayout.NORTH);
-        add(createMenuPanel(), BorderLayout.CENTER);
+        add(
+                createHeaderPanel(),
+                BorderLayout.NORTH
+        );
+
+        add(
+                createMenuPanel(),
+                BorderLayout.CENTER
+        );
     }
 
     private JPanel createHeaderPanel() {
@@ -49,19 +78,26 @@ public class DashboardFrame extends JFrame {
                 new JPanel(new BorderLayout());
 
         headerPanel.setBorder(
-                new EmptyBorder(15, 20, 15, 20)
+                new EmptyBorder(
+                        15,
+                        20,
+                        15,
+                        20
+                )
         );
 
-        JLabel userLabel = new JLabel(
+        String greeting =
                 "Xin chào, "
                         + currentUser.getFullName()
                         + " — "
                         + getRoleDisplayName(
                                 currentUser.getRole()
-                        )
-        );
+                        );
 
-        userLabel.setFont(
+        JLabel greetingLabel =
+                new JLabel(greeting);
+
+        greetingLabel.setFont(
                 new Font(
                         "Arial",
                         Font.BOLD,
@@ -73,11 +109,11 @@ public class DashboardFrame extends JFrame {
                 new JButton("Đăng xuất");
 
         logoutButton.addActionListener(
-                event -> handleLogout()
+                event -> logout()
         );
 
         headerPanel.add(
-                userLabel,
+                greetingLabel,
                 BorderLayout.WEST
         );
 
@@ -90,7 +126,42 @@ public class DashboardFrame extends JFrame {
     }
 
     private JPanel createMenuPanel() {
-        JPanel menuPanel =
+        JPanel container =
+                new JPanel(new BorderLayout());
+
+        container.setBorder(
+                BorderFactory.createEmptyBorder(
+                        20,
+                        30,
+                        30,
+                        30
+                )
+        );
+
+        JLabel titleLabel =
+                new JLabel(
+                        "CHỨC NĂNG HỆ THỐNG",
+                        SwingConstants.CENTER
+                );
+
+        titleLabel.setFont(
+                new Font(
+                        "Arial",
+                        Font.BOLD,
+                        24
+                )
+        );
+
+        titleLabel.setBorder(
+                BorderFactory.createEmptyBorder(
+                        10,
+                        10,
+                        25,
+                        10
+                )
+        );
+
+        JPanel buttonPanel =
                 new JPanel(
                         new GridLayout(
                                 2,
@@ -100,25 +171,21 @@ public class DashboardFrame extends JFrame {
                         )
                 );
 
-        menuPanel.setBorder(
-                new EmptyBorder(40, 40, 40, 40)
-        );
-
-        JButton tableButton =
+        tableButton =
                 createMenuButton("Quản lý bàn");
 
-        JButton reservationButton =
+        reservationButton =
                 createMenuButton("Đặt bàn");
 
-        JButton orderButton =
+        menuButton =
                 createMenuButton(
                         "Thực đơn và gọi món"
                 );
 
-        JButton kitchenButton =
+        kitchenButton =
                 createMenuButton("Xử lý tại bếp");
 
-        JButton paymentButton =
+        paymentButton =
                 createMenuButton(
                         "Thanh toán và hóa đơn"
                 );
@@ -126,56 +193,21 @@ public class DashboardFrame extends JFrame {
         JButton exitButton =
                 createMenuButton("Thoát chương trình");
 
-        configurePermissions(
-                tableButton,
-                reservationButton,
-                orderButton,
-                kitchenButton,
-                paymentButton
+        tableButton.addActionListener(
+                event -> openTableManagementFrame()
         );
 
-        tableButton.addActionListener(event -> {
-            boolean canManageTables =
-                currentUser.getRole() == Role.MANAGER
-                    || currentUser.getRole()
-                    == Role.RECEPTIONIST;
+        reservationButton.addActionListener(
+                event -> openReservationFrame()
+        );
 
-            TableService tableService =
-                new TableService(new TableDAO());
-
-            TableManagementFrame frame =
-                new TableManagementFrame(
-                    tableService,
-                    canManageTables
-            );
-
-        frame.setVisible(true);
-        });
-
-        reservationButton.addActionListener(event -> {
-                ReservationService reservationService =
-                        new ReservationService(
-                        new ReservationDAO()
-                );
-
-                ReservationFrame frame =
-                        new ReservationFrame(
-                    reservationService,
-                    currentUser
-            );
-
-        frame.setVisible(true);
-        });
-
-        orderButton.addActionListener(
-                event -> showPendingFeature(
-                        "Thực đơn và gọi món"
-                )
+        menuButton.addActionListener(
+                event -> openMenuFrame()
         );
 
         kitchenButton.addActionListener(
                 event -> showPendingFeature(
-                        "Xử lý món tại bếp"
+                        "Xử lý tại bếp"
                 )
         );
 
@@ -186,17 +218,27 @@ public class DashboardFrame extends JFrame {
         );
 
         exitButton.addActionListener(
-                event -> System.exit(0)
+                event -> exitApplication()
         );
 
-        menuPanel.add(tableButton);
-        menuPanel.add(reservationButton);
-        menuPanel.add(orderButton);
-        menuPanel.add(kitchenButton);
-        menuPanel.add(paymentButton);
-        menuPanel.add(exitButton);
+        buttonPanel.add(tableButton);
+        buttonPanel.add(reservationButton);
+        buttonPanel.add(menuButton);
+        buttonPanel.add(kitchenButton);
+        buttonPanel.add(paymentButton);
+        buttonPanel.add(exitButton);
 
-        return menuPanel;
+        container.add(
+                titleLabel,
+                BorderLayout.NORTH
+        );
+
+        container.add(
+                buttonPanel,
+                BorderLayout.CENTER
+        );
+
+        return container;
     }
 
     private JButton createMenuButton(String text) {
@@ -215,56 +257,123 @@ public class DashboardFrame extends JFrame {
         return button;
     }
 
-    private void configurePermissions(
-            JButton tableButton,
-            JButton reservationButton,
-            JButton orderButton,
-            JButton kitchenButton,
-            JButton paymentButton
-    ) {
+    private void configurePermissions() {
         Role role = currentUser.getRole();
 
         boolean isManager =
                 role == Role.MANAGER;
 
+        boolean isReceptionist =
+                role == Role.RECEPTIONIST;
+
+        boolean isWaiter =
+                role == Role.WAITER;
+
+        boolean isKitchen =
+                role == Role.KITCHEN;
+
+        boolean isCashier =
+                role == Role.CASHIER;
+
         tableButton.setEnabled(
-                isManager
-                        || role == Role.RECEPTIONIST
-                        || role == Role.WAITER
+                isManager || isReceptionist
         );
 
         reservationButton.setEnabled(
-                isManager
-                        || role == Role.RECEPTIONIST
+                isManager || isReceptionist
         );
 
-        orderButton.setEnabled(
+        menuButton.setEnabled(
                 isManager
-                        || role == Role.WAITER
+                        || isReceptionist
+                        || isWaiter
         );
 
         kitchenButton.setEnabled(
-                isManager
-                        || role == Role.KITCHEN
+                isManager || isKitchen
         );
 
         paymentButton.setEnabled(
-                isManager
-                        || role == Role.CASHIER
+                isManager || isCashier
         );
     }
 
+    private void openTableManagementFrame() {
+        TableDAO tableDAO =
+                new TableDAO();
+
+        TableService tableService =
+                new TableService(tableDAO);
+
+        boolean canManageTables =
+                currentUser.getRole() == Role.MANAGER
+                        || currentUser.getRole()
+                        == Role.RECEPTIONIST;
+
+        TableManagementFrame frame =
+                new TableManagementFrame(
+                        tableService,
+                        canManageTables
+                );
+
+        frame.setLocationRelativeTo(this);
+        frame.setVisible(true);
+    }
+
+    private void openReservationFrame() {
+        ReservationDAO reservationDAO =
+                new ReservationDAO();
+
+        ReservationService reservationService =
+                new ReservationService(
+                        reservationDAO
+                );
+
+        ReservationFrame frame =
+                new ReservationFrame(
+                        reservationService,
+                        currentUser
+                );
+
+        frame.setLocationRelativeTo(this);
+        frame.setVisible(true);
+    }
+
+    private void openMenuFrame() {
+        MenuDAO menuDAO =
+                new MenuDAO();
+
+        MenuService menuService =
+                new MenuService(menuDAO);
+
+        MenuFrame menuFrame =
+                new MenuFrame(menuService);
+
+        menuFrame.setLocationRelativeTo(this);
+        menuFrame.setVisible(true);
+    }
+
     private String getRoleDisplayName(Role role) {
+        if (role == null) {
+            return "Không xác định";
+        }
+
         return switch (role) {
             case MANAGER -> "Quản lý";
-            case RECEPTIONIST -> "Nhân viên tiếp nhận";
-            case WAITER -> "Nhân viên phục vụ";
-            case KITCHEN -> "Nhân viên bếp";
-            case CASHIER -> "Thu ngân";
+            case RECEPTIONIST ->
+                    "Nhân viên tiếp nhận";
+            case WAITER ->
+                    "Nhân viên phục vụ";
+            case KITCHEN ->
+                    "Nhân viên bếp";
+            case CASHIER ->
+                    "Thu ngân";
         };
     }
 
-    private void showPendingFeature(String feature) {
+    private void showPendingFeature(
+            String feature
+    ) {
         JOptionPane.showMessageDialog(
                 this,
                 "Chức năng “"
@@ -275,17 +384,37 @@ public class DashboardFrame extends JFrame {
         );
     }
 
-    private void handleLogout() {
-        int choice = JOptionPane.showConfirmDialog(
-                this,
-                "Bạn có muốn đăng xuất không?",
-                "Xác nhận đăng xuất",
-                JOptionPane.YES_NO_OPTION
-        );
+    private void logout() {
+        int result =
+                JOptionPane.showConfirmDialog(
+                        this,
+                        "Bạn có muốn đăng xuất không?",
+                        "Xác nhận đăng xuất",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE
+                );
 
-        if (choice == JOptionPane.YES_OPTION) {
+        if (result == JOptionPane.YES_OPTION) {
             dispose();
-            logoutAction.run();
+
+            if (logoutAction != null) {
+                logoutAction.run();
+            }
+        }
+    }
+
+    private void exitApplication() {
+        int result =
+                JOptionPane.showConfirmDialog(
+                        this,
+                        "Bạn có muốn thoát chương trình không?",
+                        "Xác nhận thoát",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE
+                );
+
+        if (result == JOptionPane.YES_OPTION) {
+            System.exit(0);
         }
     }
 }
