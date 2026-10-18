@@ -10,6 +10,7 @@ import com.restaurant.service.MenuService;
 import com.restaurant.service.OrderService;
 import com.restaurant.service.TableService;
 import com.restaurant.model.KitchenStatus;
+import com.restaurant.model.OrderStatus;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -85,6 +86,9 @@ public class OrderFrame extends JFrame {
 
     private final JButton cancelItemButton =
         new JButton("Hủy món");
+
+        private final JButton sendKitchenButton =
+        new JButton("Gửi xuống bếp");
 
     private List<OrderItem> currentOrderItems =
         List.of();
@@ -314,6 +318,7 @@ public class OrderFrame extends JFrame {
         panel.add(increaseButton);
         panel.add(decreaseButton);
         panel.add(cancelItemButton);
+        panel.add(sendKitchenButton);
 
         return panel;
     }
@@ -546,6 +551,9 @@ public class OrderFrame extends JFrame {
                         }
                     }
             );
+        sendKitchenButton.addActionListener(
+                event -> sendCurrentOrderToKitchen()
+);
 }
 
     private void loadTables() {
@@ -680,7 +688,7 @@ public class OrderFrame extends JFrame {
         tableComboBox.setEnabled(false);
         orderNoteField.setEnabled(false);
         createOrderButton.setEnabled(false);
-        addItemButton.setEnabled(true);
+        updateOrderActionButtons();
 
         updateOrderInformation();
         loadOrderItems();
@@ -825,6 +833,7 @@ public class OrderFrame extends JFrame {
                 currentOrder = refreshedOrder;
                 updateOrderInformation();
                 loadOrderItems();
+                updateOrderActionButtons();
 
             } catch (SQLException exception) {
                 showError(exception.getMessage());
@@ -843,9 +852,11 @@ public class OrderFrame extends JFrame {
         orderNoteField.setEnabled(true);
         createOrderButton.setEnabled(true);
         addItemButton.setEnabled(false);
+        sendKitchenButton.setEnabled(false);
         increaseButton.setEnabled(false);
         decreaseButton.setEnabled(false);
         cancelItemButton.setEnabled(false);
+        sendKitchenButton.setEnabled(false);
 
         orderNoteField.setText("");
         itemNoteField.setText("");
@@ -888,6 +899,8 @@ private void updateEditButtons() {
 
     boolean editable =
             currentOrder != null
+                    && currentOrder.getStatus()
+                    == OrderStatus.OPEN
                     && selectedItem != null
                     && selectedItem.getKitchenStatus()
                     == KitchenStatus.PENDING;
@@ -895,6 +908,18 @@ private void updateEditButtons() {
     increaseButton.setEnabled(editable);
     decreaseButton.setEnabled(editable);
     cancelItemButton.setEnabled(editable);
+}
+
+private void updateOrderActionButtons() {
+    boolean orderOpen =
+            currentOrder != null
+                    && currentOrder.getStatus()
+                    == OrderStatus.OPEN;
+
+    addItemButton.setEnabled(orderOpen);
+    sendKitchenButton.setEnabled(orderOpen);
+
+    updateEditButtons();
 }
 
 private void changeSelectedItemQuantity(
@@ -986,6 +1011,67 @@ private void openMenuFrame() {
 
     menuFrame.setLocationRelativeTo(this);
     menuFrame.setVisible(true);
+}
+private void sendCurrentOrderToKitchen() {
+    if (currentOrder == null) {
+        showError(
+                "Vui lòng tạo hoặc mở đơn trước"
+        );
+        return;
+    }
+
+    int result =
+            JOptionPane.showConfirmDialog(
+                    this,
+                    "Sau khi gửi xuống bếp, "
+                            + "bạn không thể chỉnh sửa các món trong đơn.\n"
+                            + "Bạn có muốn tiếp tục không?",
+                    "Xác nhận gửi xuống bếp",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+    if (result != JOptionPane.YES_OPTION) {
+        return;
+    }
+
+    try {
+        orderService.sendToKitchen(
+                currentOrder.getId()
+        );
+
+        RestaurantOrder refreshedOrder =
+                orderService
+                        .getActiveOrderByTable(
+                                currentOrder.getTableId()
+                        );
+
+        if (refreshedOrder == null) {
+            throw new IllegalStateException(
+                    "Không thể tải lại đơn sau khi gửi"
+            );
+        }
+
+        currentOrder = refreshedOrder;
+
+        updateOrderInformation();
+        loadOrderItems();
+        updateOrderActionButtons();
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Đã gửi đơn xuống bếp thành công.",
+                "Thành công",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+    } catch (
+            IllegalArgumentException
+            | IllegalStateException
+            | SQLException exception
+    ) {
+        showError(exception.getMessage());
+    }
 }
     private String formatCurrency(
             BigDecimal amount

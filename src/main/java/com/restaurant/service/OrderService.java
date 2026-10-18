@@ -202,6 +202,18 @@ public Long getSeatedReservationIdByTable(
                     tableId
             );
 }
+public void sendToKitchen(
+        long orderId
+) throws SQLException {
+
+    if (orderId <= 0) {
+        throw new IllegalArgumentException(
+                "Mã đơn gọi món không hợp lệ"
+        );
+    }
+
+    orderDAO.sendToKitchen(orderId);
+}
     private String normalizeNote(String note) {
         if (note == null || note.isBlank()) {
             return null;

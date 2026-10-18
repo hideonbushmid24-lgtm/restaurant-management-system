@@ -842,7 +842,126 @@ private OrderItem mapOrderItem(
                     )
             )
     );
-}    
+} 
+public void sendToKitchen(
+        long orderId
+) throws SQLException {
+
+    String findOrderSql = """
+            SELECT status
+            FROM orders
+            WHERE id = ?
+            FOR UPDATE
+            """;
+
+    String countItemsSql = """
+            SELECT COUNT(*) AS item_count
+            FROM order_items
+            WHERE order_id = ?
+              AND kitchen_status = 'PENDING'
+            """;
+
+    String updateOrderSql = """
+            UPDATE orders
+            SET status = 'IN_KITCHEN'
+            WHERE id = ?
+            """;
+
+    try (
+            Connection connection =
+                    DatabaseConnection.getConnection()
+    ) {
+        try {
+            connection.setAutoCommit(false);
+
+            try (
+                    PreparedStatement statement =
+                            connection.prepareStatement(
+                                    findOrderSql
+                            )
+            ) {
+                statement.setLong(1, orderId);
+
+                try (
+                        ResultSet resultSet =
+                                statement.executeQuery()
+                ) {
+                    if (!resultSet.next()) {
+                        throw new IllegalArgumentException(
+                                "Đơn gọi món không tồn tại"
+                        );
+                    }
+
+                    String status =
+                            resultSet.getString("status");
+
+                    if (!"OPEN".equals(status)) {
+                        throw new IllegalStateException(
+                                "Chỉ đơn đang mở mới được gửi xuống bếp"
+                        );
+                    }
+                }
+            }
+
+            try (
+                    PreparedStatement statement =
+                            connection.prepareStatement(
+                                    countItemsSql
+                            )
+            ) {
+                statement.setLong(1, orderId);
+
+                try (
+                        ResultSet resultSet =
+                                statement.executeQuery()
+                ) {
+                    resultSet.next();
+
+                    int itemCount =
+                            resultSet.getInt(
+                                    "item_count"
+                            );
+
+                    if (itemCount <= 0) {
+                        throw new IllegalStateException(
+                                "Đơn chưa có món để gửi xuống bếp"
+                        );
+                    }
+                }
+            }
+
+            try (
+                    PreparedStatement statement =
+                            connection.prepareStatement(
+                                    updateOrderSql
+                            )
+            ) {
+                statement.setLong(1, orderId);
+
+                int affectedRows =
+                        statement.executeUpdate();
+
+                if (affectedRows != 1) {
+                    throw new SQLException(
+                            "Không thể gửi đơn xuống bếp"
+                    );
+                }
+            }
+
+            connection.commit();
+
+        } catch (
+                SQLException
+                | RuntimeException exception
+        ) {
+            connection.rollback();
+            throw exception;
+
+        } finally {
+            connection.setAutoCommit(true);
+        }
+    }
+}   
     private RestaurantOrder mapOrder(
             ResultSet resultSet
     ) throws SQLException {

@@ -10,6 +10,8 @@ import com.restaurant.service.ReservationService;
 import com.restaurant.service.TableService;
 import com.restaurant.dao.OrderDAO;
 import com.restaurant.service.OrderService;
+import com.restaurant.dao.KitchenDAO;
+import com.restaurant.service.KitchenService;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -208,9 +210,7 @@ public class DashboardFrame extends JFrame {
         );
 
         kitchenButton.addActionListener(
-                event -> showPendingFeature(
-                        "Xử lý tại bếp"
-                )
+                event -> openKitchenFrame()
         );
 
         paymentButton.addActionListener(
@@ -368,7 +368,19 @@ public class DashboardFrame extends JFrame {
     orderFrame.setLocationRelativeTo(this);
     orderFrame.setVisible(true);
 }
+private void openKitchenFrame() {
+    KitchenDAO kitchenDAO =
+            new KitchenDAO();
 
+    KitchenService kitchenService =
+            new KitchenService(kitchenDAO);
+
+    KitchenFrame kitchenFrame =
+            new KitchenFrame(kitchenService);
+
+    kitchenFrame.setLocationRelativeTo(this);
+    kitchenFrame.setVisible(true);
+}
     private String getRoleDisplayName(Role role) {
         if (role == null) {
             return "Không xác định";
