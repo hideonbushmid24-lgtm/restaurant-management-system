@@ -12,6 +12,8 @@ import com.restaurant.dao.OrderDAO;
 import com.restaurant.service.OrderService;
 import com.restaurant.dao.KitchenDAO;
 import com.restaurant.service.KitchenService;
+import com.restaurant.dao.PaymentDAO;
+import com.restaurant.service.PaymentService;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -214,9 +216,7 @@ public class DashboardFrame extends JFrame {
         );
 
         paymentButton.addActionListener(
-                event -> showPendingFeature(
-                        "Thanh toán và hóa đơn"
-                )
+                event -> openPaymentFrame()
         );
 
         exitButton.addActionListener(
@@ -381,6 +381,24 @@ private void openKitchenFrame() {
     kitchenFrame.setLocationRelativeTo(this);
     kitchenFrame.setVisible(true);
 }
+
+private void openPaymentFrame() {
+    PaymentDAO paymentDAO =
+            new PaymentDAO();
+
+    PaymentService paymentService =
+            new PaymentService(paymentDAO);
+
+    PaymentFrame paymentFrame =
+            new PaymentFrame(
+                    paymentService,
+                    currentUser
+            );
+
+    paymentFrame.setLocationRelativeTo(this);
+    paymentFrame.setVisible(true);
+}
+
     private String getRoleDisplayName(Role role) {
         if (role == null) {
             return "Không xác định";
@@ -397,19 +415,6 @@ private void openKitchenFrame() {
             case CASHIER ->
                     "Thu ngân";
         };
-    }
-
-    private void showPendingFeature(
-            String feature
-    ) {
-        JOptionPane.showMessageDialog(
-                this,
-                "Chức năng “"
-                        + feature
-                        + "” sẽ được triển khai tiếp theo.",
-                "Thông báo",
-                JOptionPane.INFORMATION_MESSAGE
-        );
     }
 
     private void logout() {
