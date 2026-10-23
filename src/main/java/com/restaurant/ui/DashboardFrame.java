@@ -3,11 +3,13 @@ package com.restaurant.ui;
 import com.restaurant.dao.MenuDAO;
 import com.restaurant.dao.ReservationDAO;
 import com.restaurant.dao.TableDAO;
+import com.restaurant.dao.RevenueReportDAO;
 import com.restaurant.model.Role;
 import com.restaurant.model.User;
 import com.restaurant.service.MenuService;
 import com.restaurant.service.ReservationService;
 import com.restaurant.service.TableService;
+import com.restaurant.service.RevenueReportService;
 import com.restaurant.dao.OrderDAO;
 import com.restaurant.service.OrderService;
 import com.restaurant.dao.KitchenDAO;
@@ -38,6 +40,7 @@ public class DashboardFrame extends JFrame {
     private JButton menuButton;
     private JButton kitchenButton;
     private JButton paymentButton;
+    private JButton revenueReportButton;
 
     public DashboardFrame(
             User currentUser,
@@ -170,7 +173,7 @@ public class DashboardFrame extends JFrame {
         JPanel buttonPanel =
                 new JPanel(
                         new GridLayout(
-                                2,
+                                3,
                                 3,
                                 20,
                                 20
@@ -194,6 +197,9 @@ public class DashboardFrame extends JFrame {
         paymentButton =
                 createMenuButton(
                         "Thanh toán và hóa đơn"
+                );
+        revenueReportButton =
+                createMenuButton("Báo cáo doanh thu"
                 );
 
         JButton exitButton =
@@ -219,6 +225,10 @@ public class DashboardFrame extends JFrame {
                 event -> openPaymentFrame()
         );
 
+        revenueReportButton.addActionListener(
+                event -> openRevenueReportFrame()
+        );
+
         exitButton.addActionListener(
                 event -> exitApplication()
         );
@@ -228,8 +238,8 @@ public class DashboardFrame extends JFrame {
         buttonPanel.add(menuButton);
         buttonPanel.add(kitchenButton);
         buttonPanel.add(paymentButton);
+        buttonPanel.add(revenueReportButton);
         buttonPanel.add(exitButton);
-
         container.add(
                 titleLabel,
                 BorderLayout.NORTH
@@ -298,6 +308,8 @@ public class DashboardFrame extends JFrame {
         paymentButton.setEnabled(
                 isManager || isCashier
         );
+
+        revenueReportButton.setEnabled(isManager);
     }
 
     private void openTableManagementFrame() {
@@ -397,6 +409,23 @@ private void openPaymentFrame() {
 
     paymentFrame.setLocationRelativeTo(this);
     paymentFrame.setVisible(true);
+}
+
+private void openRevenueReportFrame() {
+    RevenueReportDAO revenueReportDAO =
+            new RevenueReportDAO();
+
+    RevenueReportService revenueReportService =
+            new RevenueReportService(
+                    revenueReportDAO
+            );
+
+    RevenueReportFrame frame =
+            new RevenueReportFrame(
+                    revenueReportService
+            );
+
+    frame.setVisible(true);
 }
 
     private String getRoleDisplayName(Role role) {
