@@ -90,6 +90,8 @@ public class OrderFrame extends JFrame {
         private final JButton sendKitchenButton =
         new JButton("Gửi xuống bếp");
 
+        private final JButton servedButton = new JButton("Xác nhận đã phục vụ");
+
     private List<OrderItem> currentOrderItems =
         List.of();
 
@@ -319,7 +321,7 @@ public class OrderFrame extends JFrame {
         panel.add(decreaseButton);
         panel.add(cancelItemButton);
         panel.add(sendKitchenButton);
-
+        
         return panel;
     }
 
@@ -362,7 +364,8 @@ public class OrderFrame extends JFrame {
                                 FlowLayout.RIGHT
                         )
                 );
-
+        
+        buttonPanel.add(servedButton);
         buttonPanel.add(selectAnotherTableButton);
         buttonPanel.add(refreshButton);
         buttonPanel.add(closeButton);
@@ -553,7 +556,9 @@ public class OrderFrame extends JFrame {
             );
         sendKitchenButton.addActionListener(
                 event -> sendCurrentOrderToKitchen()
-);
+        );
+
+        servedButton.addActionListener(event -> markSelectedItemServed());
 }
 
     private void loadTables() {
@@ -853,6 +858,7 @@ public class OrderFrame extends JFrame {
         createOrderButton.setEnabled(true);
         addItemButton.setEnabled(false);
         sendKitchenButton.setEnabled(false);
+        servedButton.setEnabled(false);
         increaseButton.setEnabled(false);
         decreaseButton.setEnabled(false);
         cancelItemButton.setEnabled(false);
@@ -894,20 +900,24 @@ public class OrderFrame extends JFrame {
 }
 
 private void updateEditButtons() {
-    OrderItem selectedItem =
-            getSelectedOrderItem();
+    OrderItem selectedItem = getSelectedOrderItem();
 
-    boolean editable =
-            currentOrder != null
-                    && currentOrder.getStatus()
-                    == OrderStatus.OPEN
-                    && selectedItem != null
-                    && selectedItem.getKitchenStatus()
-                    == KitchenStatus.PENDING;
+    boolean editable = currentOrder != null
+            && currentOrder.getStatus() == OrderStatus.OPEN
+            && selectedItem != null
+            && selectedItem.getKitchenStatus() == KitchenStatus.PENDING;
 
     increaseButton.setEnabled(editable);
     decreaseButton.setEnabled(editable);
     cancelItemButton.setEnabled(editable);
+
+    boolean canServe = currentOrder != null
+            && selectedItem != null
+            && selectedItem.getKitchenStatus() == KitchenStatus.READY
+            && (currentOrder.getStatus() == OrderStatus.IN_KITCHEN
+                || currentOrder.getStatus() == OrderStatus.READY);
+
+    servedButton.setEnabled(canServe);
 }
 
 private void updateOrderActionButtons() {
@@ -1073,6 +1083,54 @@ private void sendCurrentOrderToKitchen() {
         showError(exception.getMessage());
     }
 }
+
+private void markSelectedItemServed() {
+    OrderItem selectedItem = getSelectedOrderItem();
+
+    if (selectedItem == null) {
+        JOptionPane.showMessageDialog(
+                this,
+                "Vui lòng chọn món cần xác nhận đã phục vụ.",
+                "Chưa chọn món",
+                JOptionPane.WARNING_MESSAGE
+        );
+        return;
+    }
+
+    int choice = JOptionPane.showConfirmDialog(
+            this,
+            "Xác nhận món đã chọn đã được phục vụ?",
+            "Xác nhận phục vụ",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+    );
+
+    if (choice != JOptionPane.YES_OPTION) {
+        return;
+    }
+
+    try {
+        orderService.markItemServed(selectedItem.getId());
+        refreshCurrentOrder();
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Đã xác nhận món được phục vụ.",
+                "Thành công",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    } catch (IllegalArgumentException
+             | IllegalStateException
+             | SQLException exception) {
+        JOptionPane.showMessageDialog(
+                this,
+                exception.getMessage(),
+                "Không thể xác nhận phục vụ",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+}
+
     private String formatCurrency(
             BigDecimal amount
     ) {

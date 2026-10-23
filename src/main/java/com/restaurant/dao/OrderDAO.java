@@ -824,6 +824,238 @@ public Long findSeatedReservationIdByTableId(
     }
 }
 
+public void markItemServed(
+        long orderItemId
+) throws SQLException {
+
+    try (
+            Connection connection =
+                    DatabaseConnection.getConnection()
+    ) {
+        try {
+            connection.setAutoCommit(false);
+
+            String findItemSql = """
+                    SELECT
+                        oi.order_id,
+                        oi.kitchen_status,
+                        o.status AS order_status
+                    FROM order_items oi
+                    JOIN orders o
+                        ON o.id = oi.order_id
+                    WHERE oi.id = ?
+                    FOR UPDATE
+                    """;
+
+            long orderId;
+
+            try (
+                    PreparedStatement statement =
+                            connection.prepareStatement(
+                                    findItemSql
+                            )
+            ) {
+                statement.setLong(1, orderItemId);
+
+                try (
+                        ResultSet resultSet =
+                                statement.executeQuery()
+                ) {
+                    if (!resultSet.next()) {
+                        throw new IllegalArgumentException(
+                                "Món trong đơn không tồn tại"
+                        );
+                    }
+
+                    String kitchenStatus =
+                            resultSet.getString(
+                                    "kitchen_status"
+                            );
+
+                    String orderStatus =
+                            resultSet.getString(
+                                    "order_status"
+                            );
+
+                    if (!"READY".equals(kitchenStatus)) {
+                        throw new IllegalStateException(
+                                "Chỉ món đã hoàn thành mới được xác nhận phục vụ"
+                        );
+                    }
+
+                    if (!"IN_KITCHEN".equals(orderStatus)
+                            && !"READY".equals(orderStatus)) {
+
+                        throw new IllegalStateException(
+                                "Đơn không còn ở giai đoạn phục vụ món"
+                        );
+                    }
+
+                    orderId =
+                            resultSet.getLong(
+                                    "order_id"
+                            );
+                }
+            }
+
+            String updateItemSql = """
+                    UPDATE order_items
+                    SET kitchen_status = 'SERVED'
+                    WHERE id = ?
+                    """;
+
+            try (
+                    PreparedStatement statement =
+                            connection.prepareStatement(
+                                    updateItemSql
+                            )
+            ) {
+                statement.setLong(
+                        1,
+                        orderItemId
+                );
+
+                int affectedRows =
+                        statement.executeUpdate();
+
+                if (affectedRows != 1) {
+                    throw new SQLException(
+                            "Không thể xác nhận món đã phục vụ"
+                    );
+                }
+            }
+
+            synchronizeOrderAfterServing(
+                    connection,
+                    orderId
+            );
+
+            connection.commit();
+
+        } catch (
+                SQLException
+                | RuntimeException exception
+        ) {
+            connection.rollback();
+            throw exception;
+
+        } finally {
+            connection.setAutoCommit(true);
+        }
+    }
+}
+
+private void synchronizeOrderAfterServing(
+        Connection connection,
+        long orderId
+) throws SQLException {
+
+    String countSql = """
+            SELECT
+                SUM(
+                    CASE
+                        WHEN kitchen_status <> 'CANCELLED'
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS active_count,
+                SUM(
+                    CASE
+                        WHEN kitchen_status IN (
+                            'PENDING',
+                            'PREPARING'
+                        )
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS cooking_count,
+                SUM(
+                    CASE
+                        WHEN kitchen_status = 'READY'
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS ready_count
+            FROM order_items
+            WHERE order_id = ?
+            """;
+
+    int activeCount;
+    int cookingCount;
+    int readyCount;
+
+    try (
+            PreparedStatement statement =
+                    connection.prepareStatement(
+                            countSql
+                    )
+    ) {
+        statement.setLong(1, orderId);
+
+        try (
+                ResultSet resultSet =
+                        statement.executeQuery()
+        ) {
+            resultSet.next();
+
+            activeCount =
+                    resultSet.getInt(
+                            "active_count"
+                    );
+
+            cookingCount =
+                    resultSet.getInt(
+                            "cooking_count"
+                    );
+
+            readyCount =
+                    resultSet.getInt(
+                            "ready_count"
+                    );
+        }
+    }
+
+    String newOrderStatus;
+
+    if (activeCount > 0
+            && cookingCount == 0
+            && readyCount == 0) {
+
+        newOrderStatus = "SERVED";
+
+    } else if (cookingCount > 0) {
+        newOrderStatus = "IN_KITCHEN";
+
+    } else {
+        newOrderStatus = "READY";
+    }
+
+    String updateOrderSql = """
+            UPDATE orders
+            SET status = ?
+            WHERE id = ?
+            """;
+
+    try (
+            PreparedStatement statement =
+                    connection.prepareStatement(
+                            updateOrderSql
+                    )
+    ) {
+        statement.setString(
+                1,
+                newOrderStatus
+        );
+
+        statement.setLong(
+                2,
+                orderId
+        );
+
+        statement.executeUpdate();
+    }
+}
+
 private OrderItem mapOrderItem(
         ResultSet resultSet
 ) throws SQLException {

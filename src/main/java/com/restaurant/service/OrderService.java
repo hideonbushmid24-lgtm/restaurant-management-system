@@ -214,6 +214,21 @@ public void sendToKitchen(
 
     orderDAO.sendToKitchen(orderId);
 }
+public void markItemServed(
+        long orderItemId
+) throws SQLException {
+
+    if (orderItemId <= 0) {
+        throw new IllegalArgumentException(
+                "Mã món trong đơn không hợp lệ"
+        );
+    }
+
+    orderDAO.markItemServed(
+            orderItemId
+    );
+}
+
     private String normalizeNote(String note) {
         if (note == null || note.isBlank()) {
             return null;
