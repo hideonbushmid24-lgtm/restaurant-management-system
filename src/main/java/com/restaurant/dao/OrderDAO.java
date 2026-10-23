@@ -406,10 +406,15 @@ public long addItem(
         try {
             connection.setAutoCommit(false);
 
-            validateOpenOrder(
-                    connection,
-                    orderId
-            );
+            validateOrderAllowsAddingItem(
+                connection,
+                orderId
+        );
+
+                reopenServedOrder(
+                        connection,
+                        orderId
+        );
 
             BigDecimal unitPrice =
                     findAvailableMenuItemPrice(
@@ -552,7 +557,8 @@ public BigDecimal calculateTotal(
         }
     }
 }
-private void validateOpenOrder(
+
+private void validateOrderAllowsAddingItem(
         Connection connection,
         long orderId
 ) throws SQLException {
@@ -583,12 +589,38 @@ private void validateOpenOrder(
             String status =
                     resultSet.getString("status");
 
-            if (!"OPEN".equals(status)) {
+            boolean canAddItem =
+                    "OPEN".equals(status)
+                            || "SERVED".equals(status);
+
+            if (!canAddItem) {
                 throw new IllegalStateException(
-                        "Chỉ được thêm món khi đơn đang mở"
+                        "Chỉ được thêm món khi đơn đang mở "
+                                + "hoặc đã phục vụ xong"
                 );
             }
         }
+    }
+}
+
+private void reopenServedOrder(
+        Connection connection,
+        long orderId
+) throws SQLException {
+
+    String sql = """
+            UPDATE orders
+            SET status = 'OPEN'
+            WHERE id = ?
+              AND status = 'SERVED'
+            """;
+
+    try (
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+    ) {
+        statement.setLong(1, orderId);
+        statement.executeUpdate();
     }
 }
 

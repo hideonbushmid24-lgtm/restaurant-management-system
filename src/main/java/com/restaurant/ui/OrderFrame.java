@@ -738,7 +738,7 @@ public class OrderFrame extends JFrame {
             quantitySpinner.setValue(1);
             itemNoteField.setText("");
 
-            loadOrderItems();
+            refreshCurrentOrder();
 
         } catch (
                 IllegalArgumentException
@@ -926,7 +926,15 @@ private void updateOrderActionButtons() {
                     && currentOrder.getStatus()
                     == OrderStatus.OPEN;
 
-    addItemButton.setEnabled(orderOpen);
+    boolean orderServed =
+            currentOrder != null
+                    && currentOrder.getStatus()
+                    == OrderStatus.SERVED;
+
+    addItemButton.setEnabled(
+            orderOpen || orderServed
+    );
+
     sendKitchenButton.setEnabled(orderOpen);
 
     updateEditButtons();
