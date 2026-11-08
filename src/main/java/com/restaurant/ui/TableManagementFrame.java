@@ -316,15 +316,31 @@ public class TableManagementFrame extends JFrame {
                         )
                 );
 
-        JComboBox<TableStatus> statusComboBox =
-                new JComboBox<>(new TableStatus[]{
-                        TableStatus.AVAILABLE,
-                        TableStatus.RESERVED,
-                        TableStatus.OCCUPIED
-                });
-
         boolean editing =
                 existingTable != null;
+
+        /*
+         * Chỉ cho chọn "Trống" hoặc giữ nguyên trạng thái hiện tại.
+         * Trạng thái Đã đặt / Đang sử dụng do chức năng đặt bàn,
+         * gọi món và thanh toán điều khiển, không chỉnh tay.
+         */
+        JComboBox<TableStatus> statusComboBox;
+
+        if (editing
+                && existingTable.getStatus()
+                != TableStatus.AVAILABLE) {
+
+            statusComboBox =
+                    new JComboBox<>(new TableStatus[]{
+                            existingTable.getStatus(),
+                            TableStatus.AVAILABLE
+                    });
+        } else {
+            statusComboBox =
+                    new JComboBox<>(new TableStatus[]{
+                            TableStatus.AVAILABLE
+                    });
+        }
 
         if (editing) {
             tableNumberField.setText(
