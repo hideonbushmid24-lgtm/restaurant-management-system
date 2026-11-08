@@ -145,8 +145,19 @@ public class TableDAO {
     /**
      * Cập nhật thông tin và trạng thái bàn.
      *
-     * Cho phép chuyển từ RESERVED hoặc OCCUPIED
-     * quay lại AVAILABLE.
+     * Trạng thái chính của bàn do luồng đặt bàn, nhận bàn,
+     * gọi món và thanh toán điều khiển. Vì vậy khi sửa thủ công:
+     *  - Bàn còn đơn hoạt động hoặc lượt đặt còn hiệu lực
+     *    thì KHÔNG được đổi trạng thái.
+     *  - Không được hạ sức chứa thấp hơn số khách của lượt đặt
+     *    còn hiệu lực.
+     *  - Khi không còn đơn/lượt đặt nào, chỉ được đưa bàn về
+     *    AVAILABLE (để gỡ trạng thái bị kẹt).
+     *
+     * Toàn bộ kiểm tra và cập nhật nằm trong một transaction,
+     * khóa dòng bàn bằng FOR UPDATE để tránh sửa đồng thời.
+     *
+     * @throws IllegalArgumentException khi vi phạm quy tắc nghiệp vụ
      */
     public boolean update(
             long id,
@@ -155,7 +166,147 @@ public class TableDAO {
             TableStatus status
     ) throws SQLException {
 
-        String sql = """
+        try (Connection connection =
+                     DatabaseConnection.getConnection()) {
+
+            connection.setAutoCommit(false);
+
+            try {
+                boolean updated = updateInTransaction(
+                        connection,
+                        id,
+                        tableNumber,
+                        capacity,
+                        status
+                );
+
+                connection.commit();
+
+                return updated;
+
+            } catch (SQLException | RuntimeException exception) {
+                connection.rollback();
+                throw exception;
+            }
+        }
+    }
+
+    private boolean updateInTransaction(
+            Connection connection,
+            long id,
+            String tableNumber,
+            int capacity,
+            TableStatus newStatus
+    ) throws SQLException {
+
+        /*
+         * Bước 1: khóa dòng bàn và đọc trạng thái hiện tại.
+         */
+        TableStatus currentStatus;
+
+        String lockSql = """
+                SELECT status
+                FROM restaurant_tables
+                WHERE id = ?
+                  AND active = TRUE
+                FOR UPDATE
+                """;
+
+        try (PreparedStatement statement =
+                     connection.prepareStatement(lockSql)) {
+
+            statement.setLong(1, id);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
+                    return false;
+                }
+
+                currentStatus = TableStatus.valueOf(
+                        resultSet.getString("status")
+                );
+            }
+        }
+
+        /*
+         * Bước 2: đếm đơn và lượt đặt bàn còn hiệu lực.
+         */
+        int activeOrders;
+        int activeReservations;
+        int maxGuests;
+
+        String usageSql = """
+                SELECT
+                    (SELECT COUNT(*)
+                       FROM orders
+                      WHERE table_id = ?
+                        AND status IN (
+                            'OPEN', 'IN_KITCHEN', 'READY', 'SERVED'
+                        )) AS active_orders,
+                    (SELECT COUNT(*)
+                       FROM reservations
+                      WHERE table_id = ?
+                        AND status IN ('CONFIRMED', 'SEATED'))
+                        AS active_reservations,
+                    (SELECT COALESCE(MAX(guest_count), 0)
+                       FROM reservations
+                      WHERE table_id = ?
+                        AND status IN ('CONFIRMED', 'SEATED'))
+                        AS max_guests
+                """;
+
+        try (PreparedStatement statement =
+                     connection.prepareStatement(usageSql)) {
+
+            statement.setLong(1, id);
+            statement.setLong(2, id);
+            statement.setLong(3, id);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                resultSet.next();
+
+                activeOrders = resultSet.getInt("active_orders");
+                activeReservations =
+                        resultSet.getInt("active_reservations");
+                maxGuests = resultSet.getInt("max_guests");
+            }
+        }
+
+        /*
+         * Bước 3: kiểm tra quy tắc nghiệp vụ.
+         */
+        boolean statusChanged = newStatus != currentStatus;
+        boolean inUse = activeOrders > 0 || activeReservations > 0;
+
+        if (statusChanged && inUse) {
+            throw new IllegalArgumentException(
+                    "Bàn đang có đơn hoặc lượt đặt bàn còn hiệu lực, "
+                            + "không thể đổi trạng thái thủ công. "
+                            + "Hãy hoàn tất thanh toán hoặc hủy/nhận "
+                            + "lượt đặt bàn trước."
+            );
+        }
+
+        if (statusChanged && newStatus != TableStatus.AVAILABLE) {
+            throw new IllegalArgumentException(
+                    "Chỉ được chuyển thủ công về trạng thái Trống. "
+                            + "Trạng thái Đã đặt / Đang sử dụng do "
+                            + "chức năng đặt bàn và gọi món điều khiển."
+            );
+        }
+
+        if (capacity < maxGuests) {
+            throw new IllegalArgumentException(
+                    "Sức chứa mới (" + capacity + ") nhỏ hơn số khách "
+                            + "của lượt đặt bàn đang hiệu lực ("
+                            + maxGuests + " khách)."
+            );
+        }
+
+        /*
+         * Bước 4: cập nhật.
+         */
+        String updateSql = """
                 UPDATE restaurant_tables
                 SET table_number = ?,
                     capacity = ?,
@@ -164,16 +315,12 @@ public class TableDAO {
                   AND active = TRUE
                 """;
 
-        try (
-                Connection connection =
-                        DatabaseConnection.getConnection();
+        try (PreparedStatement statement =
+                     connection.prepareStatement(updateSql)) {
 
-                PreparedStatement statement =
-                        connection.prepareStatement(sql)
-        ) {
             statement.setString(1, tableNumber);
             statement.setInt(2, capacity);
-            statement.setString(3, status.name());
+            statement.setString(3, newStatus.name());
             statement.setLong(4, id);
 
             return statement.executeUpdate() == 1;

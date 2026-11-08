@@ -40,9 +40,14 @@ public final class DatabaseConnection {
     }
 
     public static Connection getConnection() throws SQLException {
-        String url = PROPERTIES.getProperty("db.url");
-        String username = PROPERTIES.getProperty("db.username");
-        String password = PROPERTIES.getProperty("db.password");
+        /*
+         * Cho phép ghi đè cấu hình bằng tham số -D khi chạy
+         * (ví dụ -Ddb.url=...). Nhờ vậy test có thể dùng một
+         * database riêng mà không đụng vào dữ liệu thật.
+         */
+        String url = readSetting("db.url");
+        String username = readSetting("db.username");
+        String password = readSetting("db.password");
 
         if (url == null || username == null || password == null) {
             throw new IllegalStateException(
@@ -51,5 +56,19 @@ public final class DatabaseConnection {
         }
 
         return DriverManager.getConnection(url, username, password);
+    }
+
+    /**
+     * Đọc cấu hình: ưu tiên tham số -D, sau đó mới đến file
+     * application.properties.
+     */
+    private static String readSetting(String key) {
+        String override = System.getProperty(key);
+
+        if (override != null && !override.isBlank()) {
+            return override;
+        }
+
+        return PROPERTIES.getProperty(key);
     }
 }
