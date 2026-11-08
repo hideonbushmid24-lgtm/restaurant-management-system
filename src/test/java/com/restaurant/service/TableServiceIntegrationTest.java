@@ -48,12 +48,21 @@ class TableServiceIntegrationTest {
 
     private void createReservation(long tableId, int guests, String status)
             throws SQLException {
+        /*
+         * Mỗi lượt đặt dùng một khách riêng (số điện thoại theo mã bàn
+         * và số lượt đã có) để không vi phạm ràng buộc UNIQUE.
+         */
+        long count = queryLong("SELECT COUNT(*) FROM customers");
+        long customerId = TestDatabase.createCustomer(
+                "Khach Test " + count, "09000000" + (10 + count)
+        );
+
         TestDatabase.execute(
-                "INSERT INTO reservations (table_id, customer_name, "
-                        + "customer_phone, reservation_time, guest_count, "
-                        + "status, created_by) VALUES (" + tableId
-                        + ", 'Khach Test', '0900000000', NOW(), " + guests
-                        + ", '" + status + "', (SELECT id FROM users "
+                "INSERT INTO reservations (table_id, customer_id, "
+                        + "reservation_time, guest_count, status, "
+                        + "created_by) VALUES (" + tableId + ", "
+                        + customerId + ", NOW(), " + guests + ", '"
+                        + status + "', (SELECT id FROM users "
                         + "WHERE username = 'receptionist'))"
         );
     }
