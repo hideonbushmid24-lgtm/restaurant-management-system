@@ -38,7 +38,26 @@ CREATE TABLE users (
 );
 
 -- =========================================================
--- 2. BÀN NHÀ HÀNG
+-- 2. KHÁCH HÀNG
+-- Số điện thoại là định danh duy nhất của khách (đã chuẩn hóa:
+-- chỉ gồm chữ số, có thể bắt đầu bằng dấu +).
+-- =========================================================
+
+CREATE TABLE customers (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(150) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    email VARCHAR(150) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT uq_customer_phone
+        UNIQUE (phone)
+);
+
+-- =========================================================
+-- 3. BÀN NHÀ HÀNG
 -- =========================================================
 
 CREATE TABLE restaurant_tables (
@@ -63,14 +82,13 @@ CREATE TABLE restaurant_tables (
 );
 
 -- =========================================================
--- 3. ĐẶT BÀN
+-- 4. ĐẶT BÀN
 -- =========================================================
 
 CREATE TABLE reservations (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     table_id BIGINT NOT NULL,
-    customer_name VARCHAR(150) NOT NULL,
-    customer_phone VARCHAR(20) NOT NULL,
+    customer_id BIGINT NOT NULL,
     reservation_time DATETIME NOT NULL,
     guest_count INT NOT NULL,
     note VARCHAR(500),
@@ -92,6 +110,10 @@ CREATE TABLE reservations (
         FOREIGN KEY (table_id)
         REFERENCES restaurant_tables(id),
 
+    CONSTRAINT fk_reservation_customer
+        FOREIGN KEY (customer_id)
+        REFERENCES customers(id),
+
     CONSTRAINT fk_reservation_creator
         FOREIGN KEY (created_by)
         REFERENCES users(id)
@@ -104,7 +126,7 @@ CREATE INDEX idx_reservation_table_status
     ON reservations(table_id, status);
 
 -- =========================================================
--- 4. THỰC ĐƠN
+-- 5. THỰC ĐƠN
 -- =========================================================
 
 CREATE TABLE menu_items (
@@ -129,7 +151,7 @@ CREATE INDEX idx_menu_item_category
     ON menu_items(category);
 
 -- =========================================================
--- 5. ĐƠN GỌI MÓN
+-- 6. ĐƠN GỌI MÓN
 -- =========================================================
 
 CREATE TABLE orders (
@@ -169,7 +191,7 @@ CREATE INDEX idx_order_table_status
     ON orders(table_id, status);
 
 -- =========================================================
--- 6. CHI TIẾT ĐƠN GỌI MÓN
+-- 7. CHI TIẾT ĐƠN GỌI MÓN
 -- =========================================================
 
 CREATE TABLE order_items (
@@ -214,7 +236,7 @@ CREATE INDEX idx_order_item_kitchen_status
     ON order_items(kitchen_status);
 
 -- =========================================================
--- 7. THANH TOÁN
+-- 8. THANH TOÁN
 -- =========================================================
 
 CREATE TABLE payments (
@@ -253,7 +275,7 @@ CREATE TABLE payments (
 );
 
 -- =========================================================
--- 8. HÓA ĐƠN
+-- 9. HÓA ĐƠN
 -- =========================================================
 
 CREATE TABLE invoices (

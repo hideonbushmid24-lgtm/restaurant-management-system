@@ -21,8 +21,8 @@ public class ReservationDAO {
                     r.id,
                     r.table_id,
                     t.table_number,
-                    r.customer_name,
-                    r.customer_phone,
+                    c.full_name AS customer_name,
+                    c.phone AS customer_phone,
                     r.reservation_time,
                     r.guest_count,
                     r.note,
@@ -30,6 +30,8 @@ public class ReservationDAO {
                 FROM reservations r
                 JOIN restaurant_tables t
                   ON t.id = r.table_id
+                JOIN customers c
+                  ON c.id = r.customer_id
                 ORDER BY r.reservation_time DESC
                 """;
 
@@ -127,8 +129,7 @@ public class ReservationDAO {
         String insertReservationSql = """
                 INSERT INTO reservations (
                     table_id,
-                    customer_name,
-                    customer_phone,
+                    customer_id,
                     reservation_time,
                     guest_count,
                     note,
@@ -136,7 +137,7 @@ public class ReservationDAO {
                     created_by
                 )
                 VALUES (
-                    ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?,
                     'CONFIRMED', ?
                 )
                 """;
@@ -160,6 +161,16 @@ public class ReservationDAO {
                         guestCount
                 );
 
+                /*
+                 * Tìm khách theo số điện thoại, chưa có thì tạo mới.
+                 * Nằm trong cùng transaction với việc đặt bàn.
+                 */
+                long customerId = findOrCreateCustomer(
+                        connection,
+                        customerName,
+                        customerPhone
+                );
+
                 long reservationId;
 
                 try (PreparedStatement statement =
@@ -170,20 +181,16 @@ public class ReservationDAO {
                              )) {
 
                     statement.setLong(1, tableId);
-                    statement.setString(2, customerName);
-                    statement.setString(
-                            3,
-                            customerPhone
-                    );
+                    statement.setLong(2, customerId);
                     statement.setTimestamp(
-                            4,
+                            3,
                             Timestamp.valueOf(
                                     reservationTime
                             )
                     );
-                    statement.setInt(5, guestCount);
-                    statement.setString(6, note);
-                    statement.setLong(7, createdBy);
+                    statement.setInt(4, guestCount);
+                    statement.setString(5, note);
+                    statement.setLong(6, createdBy);
 
                     statement.executeUpdate();
 
@@ -220,6 +227,58 @@ public class ReservationDAO {
             ) {
                 connection.rollback();
                 throw exception;
+            }
+        }
+    }
+
+    /**
+     * Tìm khách theo số điện thoại; nếu chưa có thì tạo mới.
+     * Cùng số điện thoại được xem là cùng một khách, tên được
+     * cập nhật theo lần đặt gần nhất.
+     *
+     * Dựa vào ràng buộc UNIQUE của cột phone nên hai người cùng
+     * đặt bàn một lúc cũng không tạo ra hai khách trùng số.
+     */
+    private long findOrCreateCustomer(
+            Connection connection,
+            String customerName,
+            String customerPhone
+    ) throws SQLException {
+
+        String upsertSql = """
+                INSERT INTO customers (full_name, phone)
+                VALUES (?, ?)
+                ON DUPLICATE KEY UPDATE
+                    full_name = VALUES(full_name)
+                """;
+
+        String findSql = """
+                SELECT id
+                FROM customers
+                WHERE phone = ?
+                """;
+
+        try (PreparedStatement statement =
+                     connection.prepareStatement(upsertSql)) {
+
+            statement.setString(1, customerName);
+            statement.setString(2, customerPhone);
+            statement.executeUpdate();
+        }
+
+        try (PreparedStatement statement =
+                     connection.prepareStatement(findSql)) {
+
+            statement.setString(1, customerPhone);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
+                    throw new SQLException(
+                            "Không lấy được mã khách hàng"
+                    );
+                }
+
+                return resultSet.getLong("id");
             }
         }
     }

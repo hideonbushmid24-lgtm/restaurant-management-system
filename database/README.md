@@ -33,7 +33,8 @@ Phải đứng trong thư mục `database/` để lệnh `SOURCE` trong script t
 
 Không chạy `schema.sql` hay `reset_demo.sql`. Chạy lần lượt các file trong
 `migrations/` theo số thứ tự, bắt đầu từ file chưa áp dụng (xem
-`migrations/README.md`). **Sao lưu trước khi chạy.**
+`migrations/README.md`, có hướng dẫn từng bước cho bản có bảng `customers`).
+**Sao lưu trước khi chạy.**
 
 ## Database cho kiểm thử tự động
 

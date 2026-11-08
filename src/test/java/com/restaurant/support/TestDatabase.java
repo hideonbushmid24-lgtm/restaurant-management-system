@@ -4,6 +4,8 @@ import com.restaurant.config.DatabaseConnection;
 import org.junit.jupiter.api.Assumptions;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -46,6 +48,7 @@ public final class TestDatabase {
             statement.execute("TRUNCATE TABLE order_items");
             statement.execute("TRUNCATE TABLE orders");
             statement.execute("TRUNCATE TABLE reservations");
+            statement.execute("TRUNCATE TABLE customers");
             statement.execute("TRUNCATE TABLE restaurant_tables");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
@@ -61,5 +64,31 @@ public final class TestDatabase {
         ) {
             statement.execute(sql);
         }
+    }
+
+    /** Chạy câu SELECT trả về một số nguyên (ví dụ COUNT hoặc id). */
+    public static long queryLong(String sql) throws SQLException {
+        try (
+                Connection connection =
+                        DatabaseConnection.getConnection();
+                PreparedStatement statement =
+                        connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()
+        ) {
+            resultSet.next();
+            return resultSet.getLong(1);
+        }
+    }
+
+    /** Tạo sẵn một khách hàng, trả về mã khách. */
+    public static long createCustomer(String fullName, String phone)
+            throws SQLException {
+        execute(
+                "INSERT INTO customers (full_name, phone) VALUES ('"
+                        + fullName + "', '" + phone + "')"
+        );
+        return queryLong(
+                "SELECT id FROM customers WHERE phone = '" + phone + "'"
+        );
     }
 }

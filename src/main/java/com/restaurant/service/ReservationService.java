@@ -36,6 +36,22 @@ public class ReservationService {
         return reservationDAO.findAvailableTables();
     }
 
+    /**
+     * Chuẩn hóa số điện thoại: bỏ khoảng trắng và dấu gạch ngang.
+     * Ví dụ "0901 234-567" -> "0901234567".
+     *
+     * @return chuỗi đã chuẩn hóa, hoặc null nếu đầu vào null hoặc
+     *         chứa ký tự không được phép
+     */
+    public static String normalizePhone(String rawPhone) {
+        if (rawPhone == null
+                || !rawPhone.trim().matches("[0-9+ -]+")) {
+            return null;
+        }
+
+        return rawPhone.trim().replaceAll("[ -]", "");
+    }
+
     public long createReservation(
             long tableId,
             String customerName,
@@ -66,13 +82,19 @@ public class ReservationService {
             );
         }
 
-        if (customerPhone == null
-                || !customerPhone
-                        .trim()
-                        .matches("[0-9+ -]{8,20}")) {
+        /*
+         * Số điện thoại là định danh của khách hàng nên phải chuẩn hóa
+         * (bỏ khoảng trắng và dấu -) trước khi kiểm tra và lưu.
+         */
+        String normalizedPhone =
+                normalizePhone(customerPhone);
+
+        if (normalizedPhone == null
+                || !normalizedPhone.matches("\\+?[0-9]{8,15}")) {
 
             throw new IllegalArgumentException(
-                    "Số điện thoại không hợp lệ"
+                    "Số điện thoại không hợp lệ "
+                            + "(8-15 chữ số, có thể bắt đầu bằng +)"
             );
         }
 
@@ -115,7 +137,7 @@ public class ReservationService {
         return reservationDAO.createReservation(
                 tableId,
                 customerName.trim(),
-                customerPhone.trim(),
+                normalizedPhone,
                 reservationTime,
                 guestCount,
                 normalizedNote,
