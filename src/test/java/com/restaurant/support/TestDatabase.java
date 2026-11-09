@@ -50,6 +50,7 @@ public final class TestDatabase {
             statement.execute("TRUNCATE TABLE reservations");
             statement.execute("TRUNCATE TABLE customers");
             statement.execute("TRUNCATE TABLE restaurant_tables");
+            statement.execute("TRUNCATE TABLE menu_items");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
     }
@@ -77,6 +78,19 @@ public final class TestDatabase {
         ) {
             resultSet.next();
             return resultSet.getLong(1);
+        }
+    }
+
+    /** Chạy câu SELECT trả về một chuỗi (ví dụ trạng thái). */
+    public static String queryString(String sql) throws SQLException {
+        try (
+                Connection connection =
+                        DatabaseConnection.getConnection();
+                PreparedStatement statement =
+                        connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()
+        ) {
+            return resultSet.next() ? resultSet.getString(1) : null;
         }
     }
 

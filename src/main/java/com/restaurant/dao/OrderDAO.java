@@ -750,6 +750,16 @@ public void cancelItem(
                 }
             }
 
+            /*
+            * Nếu đây là món gọi thêm vào đơn đã phục vụ xong và
+            * không còn món nào chờ chế biến, đơn phải trở lại
+            * trạng thái đã phục vụ để thu ngân thanh toán được.
+            */
+            returnToServedIfNothingPending(
+                    connection,
+                    orderItemId
+            );
+
             connection.commit();
 
         } catch (
@@ -764,6 +774,48 @@ public void cancelItem(
         }
     }
 }
+    /**
+     * Đưa đơn từ OPEN về SERVED khi: đơn đang OPEN, đã có món
+     * phục vụ xong và không còn món nào PENDING.
+     *
+     * Tình huống: gọi thêm món vào đơn đã phục vụ (đơn mở lại thành
+     * OPEN) rồi hủy món vừa gọi. Nếu không đưa về SERVED thì đơn bị
+     * kẹt, không gửi bếp được và cũng không thanh toán được.
+     */
+    private void returnToServedIfNothingPending(
+            Connection connection,
+            long orderItemId
+    ) throws SQLException {
+
+        String sql = """
+                UPDATE orders o
+                JOIN order_items item
+                  ON item.order_id = o.id
+                SET o.status = 'SERVED'
+                WHERE item.id = ?
+                  AND o.status = 'OPEN'
+                  AND EXISTS (
+                      SELECT 1
+                      FROM order_items served
+                      WHERE served.order_id = o.id
+                        AND served.kitchen_status = 'SERVED'
+                  )
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM order_items pending
+                      WHERE pending.order_id = o.id
+                        AND pending.kitchen_status = 'PENDING'
+                  )
+                """;
+
+        try (PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setLong(1, orderItemId);
+            statement.executeUpdate();
+        }
+    }
+
 private void validateEditableOrderItem(
         Connection connection,
         long orderItemId
