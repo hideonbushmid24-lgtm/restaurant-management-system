@@ -1,0 +1,13 @@
+# FILE MẪU - cách dùng:
+#   1. Sao chép file này thành config/local.properties (cùng thư mục).
+#   2. Sửa các giá trị theo máy của bạn.
+#   3. File config/local.properties đã được .gitignore, sẽ KHÔNG bị đưa lên GitHub.
+#
+# Chỉ cần ghi những thông số muốn thay đổi; thông số nào bỏ trống sẽ lấy
+# giá trị mặc định trong application.properties.
+#
+# Ví dụ: XAMPP dùng cổng khác 3306, hoặc dùng mật khẩu riêng.
+
+db.url=jdbc:mariadb://localhost:3306/restaurant_management
+db.username=restaurant_app
+db.password=doi_mat_khau_cua_ban

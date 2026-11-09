@@ -11,7 +11,7 @@
 --
 -- Phải chạy từ thư mục database/ để các lệnh SOURCE tìm thấy file:
 --   cd database
---   mariadb -u root -p < reset_demo.sql
+--   mysql -u root --default-character-set=utf8mb4 -e "source reset_demo.sql"
 -- =========================================================
 
 SET NAMES utf8mb4;

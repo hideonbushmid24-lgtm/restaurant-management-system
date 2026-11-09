@@ -7,7 +7,7 @@
 -- trong repository: không dùng cho dữ liệu thật.
 --
 -- Cách chạy:
---   mariadb -u root -p restaurant_management < seed.sql
+--   mysql -u root --default-character-set=utf8mb4 restaurant_management -e "source seed.sql"
 -- =========================================================
 
 SET NAMES utf8mb4;
