@@ -24,7 +24,7 @@ Quy ước bắt buộc cho mọi migration:
 `DELIMITER` nên không chạy được trong một số công cụ giao diện):
 
 ```bash
-mariadb -u root -p restaurant_management < migrations/001_customers.sql
+mysql -u root --default-character-set=utf8mb4 restaurant_management -e "source migrations/001_customers.sql"
 ```
 
 ## Nâng cấp lên bản có bảng `customers` (database đang có dữ liệu)

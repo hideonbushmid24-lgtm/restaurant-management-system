@@ -11,7 +11,7 @@
 --
 -- Script tự dừng nếu còn lượt đặt bàn chưa gắn customer_id.
 -- Chạy lại nhiều lần vẫn an toàn.
---   mariadb -u root -p restaurant_management < migrations/002_drop_legacy_customer_columns.sql
+--   mysql -u root --default-character-set=utf8mb4 restaurant_management -e "source migrations/002_drop_legacy_customer_columns.sql"
 -- =========================================================
 
 DELIMITER //

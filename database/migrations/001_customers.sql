@@ -19,7 +19,7 @@
 -- Nếu còn lượt đặt bàn không gắn được khách, script DỪNG với lỗi.
 --
 -- !!! SAO LƯU DATABASE TRƯỚC KHI CHẠY !!!
---   mariadb -u root -p restaurant_management < migrations/001_customers.sql
+--   mysql -u root --default-character-set=utf8mb4 restaurant_management -e "source migrations/001_customers.sql"
 -- =========================================================
 
 SET NAMES utf8mb4;

@@ -37,3 +37,10 @@ target/
 
 # Draw.io backup files
 *.drawio.bkp
+
+# Cấu hình riêng từng máy (chứa mật khẩu thật) - chỉ commit file .example
+config/local.properties
+
+# File sao lưu database (chứa dữ liệu và mật khẩu đã băm) - không đưa lên GitHub
+backup*.sql
+*.sql.bak

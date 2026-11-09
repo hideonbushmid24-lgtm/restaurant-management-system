@@ -4,7 +4,8 @@
 --
 -- An toàn khi chạy lại: không xóa gì, chỉ tạo nếu chưa có.
 -- Chạy bằng tài khoản quản trị (root):
---   mariadb -u root -p < create_database.sql
+--   mysql -u root --default-character-set=utf8mb4 -e "source create_database.sql"
+-- (XAMPP: root mặc định không có mật khẩu; nếu có thì thêm -p)
 --
 -- Tài khoản restaurant_app chỉ có quyền đọc/ghi dữ liệu
 -- (SELECT, INSERT, UPDATE, DELETE), không có quyền xóa bảng

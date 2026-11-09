@@ -10,7 +10,7 @@
 --   * Database đang có dữ liệu: dùng các file trong migrations/.
 --
 -- Cách chạy (database phải được tạo trước bằng create_database.sql):
---   mariadb -u root -p restaurant_management < schema.sql
+--   mysql -u root --default-character-set=utf8mb4 restaurant_management -e "source schema.sql"
 -- =========================================================
 
 SET NAMES utf8mb4;
