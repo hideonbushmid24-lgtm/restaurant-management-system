@@ -42,7 +42,8 @@ restaurant-management-system/
 ├── pom.xml                      Cấu hình Maven (Java 21, JDBC, JUnit 5)
 ├── config/                      Mẫu cấu hình kết nối riêng từng máy
 ├── database/                    Script database: schema, seed, migrations, reset, hướng dẫn
-├── docs/                        Tài liệu phân tích: phạm vi, khảo sát, UML, báo cáo, báo cáo tuần
+├── docs/                        Tài liệu phân tích: phạm vi, khảo sát, ma trận đối chiếu, kịch bản demo, UML, báo cáo, báo cáo tuần
+├── tools/uml/                   Công cụ sinh Class Diagram và ERD từ mã nguồn và schema.sql
 └── src/
     ├── main/java/com/restaurant/
     │   ├── Main.java            Điểm khởi động ứng dụng
@@ -152,7 +153,9 @@ Những điểm sau là giới hạn đã biết của bản hiện tại, khôn
 
 - [`docs/01-pham-vi.md`](docs/01-pham-vi.md): phạm vi dự án
 - [`docs/02-khao-sat-hien-trang.md`](docs/02-khao-sat-hien-trang.md): khảo sát hiện trạng
-- [`docs/uml/`](docs/uml): sơ đồ Use Case và sơ đồ tuần tự (file `.drawio`)
+- [`docs/03-ma-tran-doi-chieu-yeu-cau.md`](docs/03-ma-tran-doi-chieu-yeu-cau.md): đối chiếu yêu cầu, use case, mã nguồn, bảng dữ liệu và kiểm thử
+- [`docs/04-kich-ban-demo.md`](docs/04-kich-ban-demo.md): kịch bản trình diễn 5 chức năng, kèm tài khoản và dữ liệu mẫu
+- [`docs/uml/`](docs/uml): sơ đồ Use Case, sơ đồ tuần tự, Class Diagram và ERD (file `.drawio` và ảnh PNG)
 - [`docs/report/`](docs/report): báo cáo Word
 - [`docs/weekly/`](docs/weekly): báo cáo tiến độ theo tuần
 - [`docs/huong-dan-backup-restore.md`](docs/huong-dan-backup-restore.md): sao lưu và phục hồi
