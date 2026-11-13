@@ -44,3 +44,7 @@ config/local.properties
 # File sao lưu database (chứa dữ liệu và mật khẩu đã băm) - không đưa lên GitHub
 backup*.sql
 *.sql.bak
+
+# Python (công cụ trong tools/)
+__pycache__/
+*.pyc
