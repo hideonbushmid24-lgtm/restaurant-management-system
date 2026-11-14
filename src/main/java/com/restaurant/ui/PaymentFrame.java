@@ -483,26 +483,9 @@ public class PaymentFrame extends JFrame {
     }
 
     private BigDecimal parseDiscount() {
-        String text =
-                discountField.getText();
-
-        if (text == null || text.isBlank()) {
-            return BigDecimal.ZERO;
-        }
-
-        String normalized =
-                text.trim()
-                        .replace(" ", "")
-                        .replace(".", "")
-                        .replace(",", "");
-
-        if (!normalized.matches("-?\\d+")) {
-            throw new IllegalArgumentException(
-                    "Tiền giảm giá phải là số"
-            );
-        }
-
-        return new BigDecimal(normalized);
+        return PaymentService.parseDiscountInput(
+                discountField.getText()
+        );
     }
 
     private void performPayment() {

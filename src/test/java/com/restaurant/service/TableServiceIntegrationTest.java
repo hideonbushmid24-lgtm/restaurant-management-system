@@ -15,6 +15,7 @@ import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Kiểm thử nghiệp vụ sửa bàn với database thật.
@@ -207,5 +208,32 @@ class TableServiceIntegrationTest {
         RestaurantTable table = load("T08");
         assertEquals(TableStatus.AVAILABLE, table.getStatus());
         assertEquals(2, table.getCapacity());
+    }
+
+    @Test
+    void doiSoBanTrungBanDaNgungHoatDongThiBaoLoiRoRang()
+            throws SQLException {
+        long daXoa = createTable("T90", 4, "AVAILABLE");
+        tableService.deleteTable(daXoa);
+        long ban = createTable("B01", 2, "AVAILABLE");
+
+        IllegalArgumentException loi = assertThrows(
+                IllegalArgumentException.class,
+                () -> tableService.updateTable(
+                        ban, "T90", 2, TableStatus.AVAILABLE
+                )
+        );
+
+        assertTrue(
+                loi.getMessage().contains("đã ngừng hoạt động"),
+                "Thông báo lỗi không như mong đợi: " + loi.getMessage()
+        );
+        assertEquals(
+                "B01",
+                TestDatabase.queryString(
+                        "SELECT table_number FROM restaurant_tables WHERE id = "
+                                + ban
+                )
+        );
     }
 }

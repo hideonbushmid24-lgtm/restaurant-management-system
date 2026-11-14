@@ -97,7 +97,8 @@ public class OrderDAO {
 
                 validateTable(
                         connection,
-                        tableId
+                        tableId,
+                        reservationId
                 );
 
                 validateNoActiveOrder(
@@ -192,7 +193,8 @@ public class OrderDAO {
 
     private void validateTable(
             Connection connection,
-            long tableId
+            long tableId,
+            Long reservationId
     ) throws SQLException {
 
         String sql = """
@@ -230,6 +232,21 @@ public class OrderDAO {
                 if ("INACTIVE".equals(status)) {
                     throw new IllegalStateException(
                             "Không thể tạo đơn cho bàn ngừng hoạt động"
+                    );
+                }
+
+                /*
+                 * Bàn "Đã đặt" nghĩa là đang giữ chỗ cho một lượt đặt chưa
+                 * nhận bàn. Không cho tạo đơn vãng lai trên bàn này, nếu không
+                 * bàn sẽ thành "Đang dùng" trong khi lượt đặt vẫn "Đã xác nhận",
+                 * và việc hủy lượt đặt sau đó sẽ trả bàn về "Trống" dù đơn còn mở.
+                 */
+                if ("RESERVED".equals(status)
+                        && reservationId == null) {
+                    throw new IllegalStateException(
+                            "Khách chưa nhận bàn. "
+                                    + "Vui lòng thực hiện nhận bàn "
+                                    + "trước khi gọi món"
                     );
                 }
             }

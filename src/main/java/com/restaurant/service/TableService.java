@@ -144,6 +144,22 @@ public class TableService {
             );
         }
 
+        /*
+         * Bàn đã ngừng hoạt động (xóa mềm) vẫn giữ số bàn trong database
+         * (cột table_number là UNIQUE). Nếu không chặn ở đây, người dùng
+         * sẽ nhận lỗi SQL thô "Duplicate entry ...".
+         */
+        if (tableDAO.findInactiveIdByTableNumber(
+                normalizedTableNumber
+        ) != null) {
+            throw new IllegalArgumentException(
+                    "Số bàn " + normalizedTableNumber
+                            + " thuộc một bàn đã ngừng hoạt động. "
+                            + "Hãy chọn số bàn khác, hoặc dùng chức năng "
+                            + "thêm bàn với số này để kích hoạt lại bàn cũ"
+            );
+        }
+
         boolean updated = tableDAO.update(
                 id,
                 normalizedTableNumber,

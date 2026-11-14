@@ -325,11 +325,16 @@ public class ReservationDAO {
                 WHERE id = ?
                 """;
 
+        /*
+         * Chỉ đổi trạng thái bàn khi bàn đang giữ chỗ (RESERVED), để việc
+         * nhận bàn hoặc hủy đặt bàn không ghi đè bàn đang được dùng.
+         */
         String updateTableSql = """
                 UPDATE restaurant_tables
                 SET status = ?
                 WHERE id = ?
                   AND active = TRUE
+                  AND status = 'RESERVED'
                 """;
 
         try (Connection connection =
@@ -410,7 +415,16 @@ public class ReservationDAO {
                     );
 
                     statement.setLong(2, tableId);
-                    statement.executeUpdate();
+
+                    int updatedTables = statement.executeUpdate();
+
+                    if (updatedTables == 0
+                            && newTableStatus == TableStatus.OCCUPIED) {
+                        throw new IllegalArgumentException(
+                                "Bàn đang được sử dụng hoặc đã ngừng "
+                                        + "hoạt động, chưa thể nhận bàn"
+                        );
+                    }
                 }
 
                 connection.commit();
