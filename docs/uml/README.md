@@ -8,9 +8,10 @@ Mở các file `.drawio` bằng [diagrams.net](https://app.diagrams.net) hoặc 
 | `Sequence_Dat_Ban.drawio` | Tuần tự: đặt bàn | Vẽ tay |
 | `Sequence_Goi_Mon.drawio` | Tuần tự: gọi món | Vẽ tay |
 | `Sequence_Thanh_Toan.drawio` | Tuần tự: thanh toán | Vẽ tay |
+| `Communication_Dat_Ban.drawio`, `Communication_Goi_Mon.drawio`, `Communication_Thanh_Toan.drawio` | Communication Diagram (đối tượng nối bằng liên kết, thông điệp đánh số 1, 1.1, 1.1.1) cho UC-02, UC-03, UC-05, vẽ theo luồng thật: màn hình, Service, DAO, cơ sở dữ liệu | **Sinh từ luồng trong mã nguồn** bằng `tools/uml/gen_communication.py` |
 | `ClassDiagram_QuanLyNhaHang.drawio` | Class Diagram, 2 trang: domain model và kiến trúc phân tầng (UI, Service, DAO) | **Sinh từ mã nguồn** bằng `tools/uml/gen_class.py` |
 | `ERD_CoSoDuLieu_QuanLyNhaHang.drawio` | ERD 9 bảng, 11 khóa ngoại | **Sinh từ `database/schema.sql`** bằng `tools/uml/gen_erd.py` |
-| `ClassDiagram_DomainModel.png`, `ClassDiagram_KienTrucPhanTang.png`, `ERD_CoSoDuLieu_QuanLyNhaHang.png` | Ảnh xem nhanh của hai sơ đồ trên (độ phân giải cao, phóng to được) | Sinh cùng lúc |
+| `ClassDiagram_DomainModel.png`, `ClassDiagram_KienTrucPhanTang.png`, `ERD_CoSoDuLieu_QuanLyNhaHang.png`, `Communication_*.png` | Ảnh xem nhanh của các sơ đồ sinh tự động (độ phân giải cao, phóng to được) | Sinh cùng lúc |
 
 Ghi chú:
 - Class Diagram và ERD được sinh tự động nên luôn khớp mã nguồn và database. Nếu sửa tay trong diagrams.net rồi

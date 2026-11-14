@@ -52,10 +52,10 @@ Ghi chú:
 | Use case | Tác nhân chính | Yêu cầu liên quan | Sơ đồ |
 |---|---|---|---|
 | UC-01 Đăng nhập | Tất cả vai trò | FR-01 | `UseCase_TongQuat_QuanLyNhaHang_HoanChinh.drawio` |
-| UC-02 Đặt bàn | Nhân viên tiếp nhận | FR-03, FR-04, FR-05 | `Sequence_Dat_Ban.drawio` |
-| UC-03 Gọi món | Nhân viên phục vụ | FR-06, FR-07, FR-08, FR-09, FR-15 | `Sequence_Goi_Mon.drawio` |
+| UC-02 Đặt bàn | Nhân viên tiếp nhận | FR-03, FR-04, FR-05 | `Sequence_Dat_Ban.drawio`, `Communication_Dat_Ban.drawio` |
+| UC-03 Gọi món | Nhân viên phục vụ | FR-06, FR-07, FR-08, FR-09, FR-15 | `Sequence_Goi_Mon.drawio`, `Communication_Goi_Mon.drawio` |
 | UC-04 Xử lý món tại bếp | Nhân viên bếp | FR-10, FR-11 | (trong Use Case tổng quát) |
-| UC-05 Thanh toán hóa đơn | Thu ngân | FR-12, FR-13, FR-14 | `Sequence_Thanh_Toan.drawio` |
+| UC-05 Thanh toán hóa đơn | Thu ngân | FR-12, FR-13, FR-14 | `Sequence_Thanh_Toan.drawio`, `Communication_Thanh_Toan.drawio` |
 | UC-06 Báo cáo doanh thu | Quản lý | FR-16 | (trong Use Case tổng quát) |
 | (không có đặc tả riêng) Quản lý bàn | Quản lý, Nhân viên tiếp nhận | FR-02 | `UseCase_TongQuat_QuanLyNhaHang_HoanChinh.drawio` |
 
