@@ -14,16 +14,16 @@ câu lệnh SQL trong các lớp DAO và các lớp kiểm thử trong `src/test
 | FR-01 | Đăng nhập | Must | UC-01 | LoginFrame, DashboardFrame | AuthService.login | users | AuthServiceTest, PasswordUtilTest |
 | FR-02 | Quản lý bàn (thêm, sửa, ngừng, kích hoạt lại) | Must | Chỉ có trong Use Case tổng quát | TableManagementFrame | TableService: addTable, updateTable, deleteTable | restaurant_tables, orders, reservations | TableServiceIntegrationTest |
 | FR-03 | Xem bàn hiện có, lọc theo số bàn và trạng thái | Should | UC-02 | TableManagementFrame, ReservationFrame | TableService.search, ReservationService.getAvailableTables | restaurant_tables | Một phần (TableServiceIntegrationTest dùng `search`) |
-| FR-04 | Đặt bàn (bàn, khách, số điện thoại, thời gian, số khách) | Must | UC-02 | ReservationFrame | ReservationService.createReservation | reservations, customers, restaurant_tables | ReservationServiceIntegrationTest |
-| FR-05 | Cập nhật đặt bàn (khách nhận bàn, hủy) | Should | UC-02 | ReservationFrame | ReservationService: seatReservation, cancelReservation | reservations, restaurant_tables | ReservationServiceIntegrationTest, PaymentIntegrationTest |
+| FR-04 | Đặt bàn (bàn, khách, số điện thoại, thời gian, số khách) | Must | UC-02 | ReservationFrame | ReservationService.createReservation | reservations, customers, restaurant_tables | ReservationServiceIntegrationTest, InputParsingTest (đọc thời gian đặt bàn) |
+| FR-05 | Cập nhật đặt bàn (khách nhận bàn, hủy) | Should | UC-02 | ReservationFrame | ReservationService: seatReservation, cancelReservation | reservations, restaurant_tables | ReservationServiceIntegrationTest, PaymentIntegrationTest, ReservationOrderConsistencyIntegrationTest |
 | FR-06 | Xem thực đơn | Must | UC-03 | MenuFrame | MenuService: searchAvailableItems, getAvailableCategories | menu_items | **Chưa có** |
 | FR-07 | Tìm món theo tên, danh mục, sắp xếp theo giá | Should | UC-03 | MenuFrame | MenuService.searchAvailableItems | menu_items | **Chưa có** |
-| FR-08 | Tạo đơn gọi món | Must | UC-03 | OrderFrame | OrderService: createOrder, addItem | orders, order_items, restaurant_tables, reservations | OrderFlowIntegrationTest |
+| FR-08 | Tạo đơn gọi món | Must | UC-03 | OrderFrame | OrderService: createOrder, addItem | orders, order_items, restaurant_tables, reservations | OrderFlowIntegrationTest, ReservationOrderConsistencyIntegrationTest |
 | FR-09 | Cập nhật đơn (tăng, giảm, hủy, gọi thêm, xác nhận phục vụ) | Must | UC-03 | OrderFrame | OrderService: updateItemQuantity, cancelItem, addItem, markItemServed | order_items, orders | OrderFlowIntegrationTest |
 | FR-10 | Xem món tại bếp | Must | UC-04 | KitchenFrame | KitchenService.getActiveItems | order_items, orders, restaurant_tables | **Chưa có** |
 | FR-11 | Cập nhật trạng thái món (chế biến, hoàn thành) | Must | UC-04 | KitchenFrame | KitchenService: startPreparing, markReady | order_items, orders | OrderFlowIntegrationTest |
 | FR-12 | Tính tiền từ các món không bị hủy | Must | UC-05 | PaymentFrame | PaymentService.getPayableOrders, OrderService.getOrderTotal | order_items, orders | OrderFlowIntegrationTest, PaymentIntegrationTest |
-| FR-13 | Ghi nhận thanh toán (giảm giá, phương thức, thu ngân) | Must | UC-05 | PaymentFrame | PaymentService.pay | payments, orders, restaurant_tables, reservations | PaymentIntegrationTest |
+| FR-13 | Ghi nhận thanh toán (giảm giá, phương thức, thu ngân) | Must | UC-05 | PaymentFrame | PaymentService.pay | payments, orders, restaurant_tables, reservations | PaymentIntegrationTest, InputParsingTest (đọc tiền giảm giá) |
 | FR-14 | Hiển thị hóa đơn | Must | UC-05 | PaymentFrame | PaymentService.pay (phiếu thanh toán) | invoices, payments | PaymentIntegrationTest |
 | FR-15 | Mở lại đơn đang hoạt động theo bàn | Should | UC-03 | OrderFrame | OrderService: getActiveOrderByTable, getSeatedReservationIdByTable | orders, order_items, reservations | **Chưa có** |
 | FR-16 | Báo cáo doanh thu theo khoảng ngày | Should | UC-06 | RevenueReportFrame | RevenueReportService: getSummary, findRecords | payments, invoices, orders | RevenueReportIntegrationTest |
@@ -71,3 +71,6 @@ Các sơ đồ nằm trong [`uml/`](uml). Class Diagram và ERD được sinh t�
 3. **Phân quyền:** mới được ép ở tầng dữ liệu cho thanh toán; các thao tác khác chỉ bị khóa ở giao diện.
 4. **Giới hạn đã biết của hệ thống:** đặt bàn theo trạng thái bàn (chưa có lịch theo khung giờ, chưa chống trùng giờ),
    hóa đơn dạng tóm tắt, thực đơn chỉ tra cứu. Chi tiết trong mục "Giới hạn hiện tại" của `README.md`.
+5. **Bàn không có lối thoát:** khi một lượt đặt đã chuyển "Khách đã vào bàn" mà khách không gọi món hoặc không thanh toán,
+   không có chức năng nào hủy lượt đó hay hủy đơn (trạng thái đơn `CANCELLED` có trong cơ sở dữ liệu nhưng không có
+   thao tác nào đặt trạng thái này). Bàn chỉ trở về "Trống" sau khi thanh toán. Báo cáo chưa có use case cho tình huống này.
