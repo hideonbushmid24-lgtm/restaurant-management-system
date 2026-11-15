@@ -16,6 +16,7 @@ từ giao diện và dữ liệu mẫu (`database/seed.sql`) của bản hiện 
    ```
 3. Mở ứng dụng (`mvn compile exec:java` hoặc chạy `Main.java` trong VS Code). Nên mở sẵn các cửa sổ đăng nhập để
    chuyển vai trò nhanh: đăng xuất rồi đăng nhập lại bằng tài khoản khác.
+   Lần chạy đầu tiên Maven cần Internet để tải thư viện, nên hãy chạy `mvn compile` một lần trước buổi demo khi còn mạng.
 
 Dữ liệu mẫu có sẵn: 8 bàn `B01` đến `B08` (2, 2, 4, 4, 4, 6, 6, 8 chỗ), 8 món, 5 tài khoản.
 

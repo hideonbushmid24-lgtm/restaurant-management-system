@@ -172,7 +172,13 @@ public class OrderFrame extends JFrame {
         loadTables();
         loadMenuItems();
 
+        // Chưa mở đơn nào: khóa mọi nút thao tác trên món của đơn
         addItemButton.setEnabled(false);
+        increaseButton.setEnabled(false);
+        decreaseButton.setEnabled(false);
+        cancelItemButton.setEnabled(false);
+        sendKitchenButton.setEnabled(false);
+        servedButton.setEnabled(false);
     }
 
     private void initializeFrame() {
@@ -292,14 +298,9 @@ public class OrderFrame extends JFrame {
     }
 
     private JPanel createItemPanel() {
+        // Hai hàng riêng: nhập món ở hàng trên, thao tác trên đơn ở hàng dưới.
         JPanel panel =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.LEFT,
-                                10,
-                                10
-                        )
-                );
+                new JPanel(new GridLayout(2, 1));
 
         panel.setBorder(
                 BorderFactory.createTitledBorder(
@@ -307,21 +308,43 @@ public class OrderFrame extends JFrame {
                 )
         );
 
-        panel.add(new JLabel("Món ăn:"));
-        panel.add(menuItemComboBox);
+        JPanel inputRow =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.LEFT,
+                                10,
+                                5
+                        )
+                );
 
-        panel.add(new JLabel("Số lượng:"));
-        panel.add(quantitySpinner);
+        inputRow.add(new JLabel("Món ăn:"));
+        inputRow.add(menuItemComboBox);
 
-        panel.add(new JLabel("Ghi chú:"));
-        panel.add(itemNoteField);
+        inputRow.add(new JLabel("Số lượng:"));
+        inputRow.add(quantitySpinner);
 
-        panel.add(addItemButton);
-        panel.add(increaseButton);
-        panel.add(decreaseButton);
-        panel.add(cancelItemButton);
-        panel.add(sendKitchenButton);
-        
+        inputRow.add(new JLabel("Ghi chú:"));
+        inputRow.add(itemNoteField);
+
+        inputRow.add(addItemButton);
+
+        JPanel actionRow =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.LEFT,
+                                10,
+                                5
+                        )
+                );
+
+        actionRow.add(increaseButton);
+        actionRow.add(decreaseButton);
+        actionRow.add(cancelItemButton);
+        actionRow.add(sendKitchenButton);
+
+        panel.add(inputRow);
+        panel.add(actionRow);
+
         return panel;
     }
 
@@ -365,6 +388,7 @@ public class OrderFrame extends JFrame {
                         )
                 );
         
+        buttonPanel.add(viewMenuButton);
         buttonPanel.add(servedButton);
         buttonPanel.add(selectAnotherTableButton);
         buttonPanel.add(refreshButton);
