@@ -110,7 +110,7 @@ Dùng khi còn thời gian, để chứng minh các ràng buộc nghiệp vụ.
 
 | Tình huống | Cách thực hiện | Kết quả |
 |---|---|---|
-| Hai đơn hoạt động cùng một bàn | Bàn `B04`: tạo đơn, rồi chọn lại `B04` và bấm **Tạo hoặc mở đơn** lần nữa | Mở lại đúng đơn đang có, không tạo đơn thứ hai. Thông báo "Bàn đang có một đơn chưa hoàn tất" chỉ hiện khi hai thao tác tạo đơn xảy ra cùng lúc (hai cửa sổ bấm đồng thời): khi đó chỉ một đơn được tạo |
+| Hai đơn hoạt động cùng một bàn | Bàn `B04`: bấm **Tạo hoặc mở đơn** (nút bị khóa sau khi đơn đã mở), rồi bấm **Chọn bàn khác**, chọn lại `B04` và bấm **Tạo hoặc mở đơn** lần nữa | Mở lại đúng đơn đang có ("Đơn số: 1", đang gọi món), không tạo đơn thứ hai. Thông báo "Bàn đang có một đơn chưa hoàn tất" chỉ hiện khi hai thao tác tạo đơn xảy ra cùng lúc (hai cửa sổ bấm đồng thời): khi đó chỉ một đơn được tạo |
 | Thanh toán đơn chưa phục vụ xong | Cashier chọn đơn vừa gửi bếp (không có trong danh sách thanh toán) | Không thể thanh toán đơn chưa phục vụ xong |
 | Phân quyền | Đăng nhập `waiter`, thử mở **Thanh toán và hóa đơn** | Nút bị khóa |
 | Đổi trạng thái bàn đang có khách | Bàn đang "Đang sử dụng", sửa bàn rồi đổi trạng thái về "Trống" | Hệ thống từ chối vì bàn còn đơn hoặc lượt đặt đang hiệu lực |
