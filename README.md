@@ -119,7 +119,7 @@ Chạy ở thư mục gốc dự án:
 ```powershell
 mvn test
 ```
-Các test không cần database (đăng nhập, băm mật khẩu, cấu hình) luôn chạy. Các test nghiệp vụ dùng
+Các test không cần database (đăng nhập, băm mật khẩu, cấu hình, đọc thời gian đặt bàn và tiền giảm giá) luôn chạy. Các test nghiệp vụ dùng
 database thật sẽ **tự bỏ qua** nếu chưa cấu hình, để không bao giờ xóa nhầm dữ liệu demo.
 
 Để chạy đủ, tạo một database riêng có tên kết thúc bằng `_test` (hướng dẫn trong
@@ -143,6 +143,8 @@ Những điểm sau là giới hạn đã biết của bản hiện tại, khôn
   chức năng tra cứu, in lại hóa đơn.
 - **Phân quyền** chủ yếu thực hiện ở giao diện (ẩn/khóa nút); riêng thanh toán có kiểm tra vai trò ở
   tầng dữ liệu.
+- **Hủy đơn / hủy lượt đã nhận bàn** chưa có: bàn đã nhận khách chỉ trở về "Trống" sau khi đơn được phục vụ
+  và thanh toán (trạng thái đơn `CANCELLED` chưa được sử dụng).
 - **Mật khẩu** được băm SHA-256 không có muối (salt), chỉ phù hợp để trình diễn.
 - **Giao diện** gọi truy vấn trực tiếp; nếu database phản hồi chậm, cửa sổ có thể bị đứng tạm thời.
 - **Thực đơn** chỉ có màn hình tra cứu; chưa có chức năng thêm, sửa hoặc ngừng bán món trong ứng dụng

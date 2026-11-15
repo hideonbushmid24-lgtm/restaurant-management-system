@@ -13,15 +13,12 @@ import java.awt.*;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class ReservationFrame extends JFrame {
 
     private static final DateTimeFormatter DATE_TIME_FORMAT =
-            DateTimeFormatter.ofPattern(
-                    "yyyy-MM-dd HH:mm"
-            );
+            ReservationService.RESERVATION_TIME_FORMAT;
 
     private final ReservationService reservationService;
     private final User currentUser;
@@ -355,9 +352,8 @@ public class ReservationFrame extends JFrame {
             }
 
             LocalDateTime reservationTime =
-                    LocalDateTime.parse(
-                            timeField.getText().trim(),
-                            DATE_TIME_FORMAT
+                    ReservationService.parseReservationTime(
+                            timeField.getText()
                     );
 
             int guestCount =
@@ -376,12 +372,6 @@ public class ReservationFrame extends JFrame {
 
             showSuccess("Đặt bàn thành công.");
             loadReservations();
-
-        } catch (DateTimeParseException exception) {
-            showError(
-                    "Thời gian không đúng định dạng "
-                            + "yyyy-MM-dd HH:mm"
-            );
 
         } catch (
                 IllegalArgumentException

@@ -16,6 +16,7 @@ từ giao diện và dữ liệu mẫu (`database/seed.sql`) của bản hiện 
    ```
 3. Mở ứng dụng (`mvn compile exec:java` hoặc chạy `Main.java` trong VS Code). Nên mở sẵn các cửa sổ đăng nhập để
    chuyển vai trò nhanh: đăng xuất rồi đăng nhập lại bằng tài khoản khác.
+   Lần chạy đầu tiên Maven cần Internet để tải thư viện, nên hãy chạy `mvn compile` một lần trước buổi demo khi còn mạng.
 
 Dữ liệu mẫu có sẵn: 8 bàn `B01` đến `B08` (2, 2, 4, 4, 4, 6, 6, 8 chỗ), 8 món, 5 tài khoản.
 
@@ -100,7 +101,7 @@ với số `0901-234-567`, hệ thống nhận ra cùng một khách (bảng `cu
 
 | Bước | Thao tác | Kết quả mong đợi |
 |---|---|---|
-| 6 | Giữ khoảng ngày mặc định (hôm nay, định dạng `dd/MM/yyyy`), bấm **Xem báo cáo** | 1 hóa đơn; giảm giá 37.000 đ; doanh thu thực nhận 350.000 đ |
+| 6 | Giữ khoảng ngày mặc định (từ ngày đầu tháng đến hôm nay, định dạng `dd/MM/yyyy`), bấm **Xem báo cáo** | 1 hóa đơn; giảm giá 37.000 đ; doanh thu thực nhận 350.000 đ |
 | 7 | Nhập khoảng ngày chưa có giao dịch, ví dụ từ `01/01/2020` đến `01/01/2020` | Kết quả bằng 0, không báo lỗi |
 
 ## 7. Kịch bản bổ sung: các tình huống hệ thống từ chối (NFR-03, NFR-04)
@@ -109,10 +110,13 @@ Dùng khi còn thời gian, để chứng minh các ràng buộc nghiệp vụ.
 
 | Tình huống | Cách thực hiện | Kết quả |
 |---|---|---|
-| Hai đơn hoạt động cùng một bàn | Bàn `B04`: tạo đơn, thử tạo đơn thứ hai cho cùng bàn (hoặc từ hai cửa sổ) | Chỉ một đơn được tạo; lần sau báo bàn đang có đơn chưa hoàn tất |
+| Hai đơn hoạt động cùng một bàn | Bàn `B04`: bấm **Tạo hoặc mở đơn** (nút bị khóa sau khi đơn đã mở), rồi bấm **Chọn bàn khác**, chọn lại `B04` và bấm **Tạo hoặc mở đơn** lần nữa | Mở lại đúng đơn đang có ("Đơn số: 1", đang gọi món), không tạo đơn thứ hai. Thông báo "Bàn đang có một đơn chưa hoàn tất" chỉ hiện khi hai thao tác tạo đơn xảy ra cùng lúc (hai cửa sổ bấm đồng thời): khi đó chỉ một đơn được tạo |
 | Thanh toán đơn chưa phục vụ xong | Cashier chọn đơn vừa gửi bếp (không có trong danh sách thanh toán) | Không thể thanh toán đơn chưa phục vụ xong |
 | Phân quyền | Đăng nhập `waiter`, thử mở **Thanh toán và hóa đơn** | Nút bị khóa |
 | Đổi trạng thái bàn đang có khách | Bàn đang "Đang sử dụng", sửa bàn rồi đổi trạng thái về "Trống" | Hệ thống từ chối vì bàn còn đơn hoặc lượt đặt đang hiệu lực |
+| Gọi món khi khách chưa nhận bàn | Đặt bàn `B06` nhưng không bấm **Khách nhận bàn**; đăng nhập `waiter`, chọn `B06`, bấm **Tạo hoặc mở đơn** | Báo "Khách chưa nhận bàn. Vui lòng thực hiện nhận bàn trước khi gọi món"; không tạo đơn |
+| Thời gian đặt bàn không tồn tại | Ở **Đặt bàn mới**, nhập thời gian `2026-02-30 19:00` | Hộp thoại báo thời gian không hợp lệ; không tạo lượt đặt (không tự đổi thành 28/02) |
+| Giảm giá sai định dạng | Ở ô **Giảm giá (VNĐ)** nhập `1,5` | Dòng thành tiền hiện "Không hợp lệ" và nút **Thanh toán** bị khóa; nhập `50.000` hoặc `50000` thì hợp lệ |
 
 ## 8. Kiểm tra dữ liệu sau demo (tùy chọn)
 
@@ -125,4 +129,6 @@ mysql -u root --default-character-set=utf8mb4 restaurant_management -e "SELECT s
 - Đặt bàn dựa trên trạng thái bàn, chưa có lịch theo khung giờ: nên nói rõ đây là giới hạn của phiên bản đồ án.
 - Hóa đơn là dạng tóm tắt (tổng tiền, giảm giá, thực trả), chưa liệt kê từng món.
 - Thực đơn chỉ tra cứu, không thêm hoặc sửa món trong ứng dụng.
+- Không bấm nhầm **Khách nhận bàn**: hiện chưa có chức năng hủy lượt đã nhận bàn hay hủy đơn, bàn chỉ trở về "Trống"
+  sau khi đơn được phục vụ xong và thanh toán. Nếu bấm nhầm trong lúc demo, chạy lại `reset_demo.sql`.
 - Sau buổi demo, chạy lại `reset_demo.sql` để về dữ liệu mẫu cho lần demo sau.

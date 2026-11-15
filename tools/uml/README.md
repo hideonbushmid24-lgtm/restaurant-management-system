@@ -7,6 +7,7 @@ với hệ thống thật. Khi sửa mô hình dữ liệu hoặc các lớp, ch
 |---|---|
 | `gen_erd.py` | Đọc `database/schema.sql`, vẽ ERD 9 bảng, mọi khóa ngoại tự có đường nối |
 | `gen_class.py` | Đọc các lớp trong `src/main/java/com/restaurant`, vẽ 2 trang: domain model và kiến trúc phân tầng. Dừng và báo lỗi nếu quan hệ UI, Service, DAO trong mã khác với sơ đồ |
+| `gen_communication.py` | Vẽ 3 Communication Diagram (UC-02 Đặt bàn, UC-03 Gọi món, UC-05 Thanh toán). Luồng thông điệp khai báo trong biến `DIAGRAMS` của file, đã đối chiếu với các lớp UI, Service, DAO; tự kiểm tra chữ không chồng nhau và không tràn khung. Khi luồng trong mã đổi, sửa `DIAGRAMS` rồi chạy lại |
 | `verify_drawio.py` | Kiểm tra độc lập file `.drawio`: tham chiếu hợp lệ, hộp không chồng nhau, đường nối không xuyên hộp |
 | `diagram_lib.py` | Thư viện dùng chung |
 
@@ -18,7 +19,8 @@ Cần Python 3. Ảnh PNG xem trước cần thêm thư viện Pillow (không b�
 pip install pillow
 python tools/uml/gen_erd.py
 python tools/uml/gen_class.py
-python tools/uml/verify_drawio.py docs/uml/ERD_CoSoDuLieu_QuanLyNhaHang.drawio docs/uml/ClassDiagram_QuanLyNhaHang.drawio
+python tools/uml/gen_communication.py
+python tools/uml/verify_drawio.py docs/uml/ERD_CoSoDuLieu_QuanLyNhaHang.drawio docs/uml/ClassDiagram_QuanLyNhaHang.drawio docs/uml/Communication_Dat_Ban.drawio docs/uml/Communication_Goi_Mon.drawio docs/uml/Communication_Thanh_Toan.drawio
 ```
 
 Kết quả ghi vào `docs/uml/`. Mở file `.drawio` bằng [diagrams.net](https://app.diagrams.net) hoặc extension

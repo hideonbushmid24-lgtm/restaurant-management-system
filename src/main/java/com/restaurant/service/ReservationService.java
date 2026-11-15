@@ -6,9 +6,24 @@ import com.restaurant.model.RestaurantTable;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.List;
 
 public class ReservationService {
+
+    /**
+     * Định dạng thời gian đặt bàn: yyyy-MM-dd HH:mm.
+     *
+     * Dùng chế độ STRICT (và "uuuu" thay cho "yyyy") để ngày không tồn tại
+     * như 2026-02-30 hoặc giờ 24:00 bị từ chối, thay vì bị tự động đổi
+     * thành 2026-02-28 hoặc 00:00 ngày hôm sau.
+     */
+    public static final DateTimeFormatter RESERVATION_TIME_FORMAT =
+            DateTimeFormatter
+                    .ofPattern("uuuu-MM-dd HH:mm")
+                    .withResolverStyle(ResolverStyle.STRICT);
 
     private final ReservationDAO reservationDAO;
 
@@ -34,6 +49,32 @@ public class ReservationService {
             throws SQLException {
 
         return reservationDAO.findAvailableTables();
+    }
+
+    /**
+     * Đọc thời gian đặt bàn do người dùng nhập (yyyy-MM-dd HH:mm).
+     *
+     * @throws IllegalArgumentException nếu để trống, sai định dạng
+     *         hoặc là ngày giờ không tồn tại
+     */
+    public static LocalDateTime parseReservationTime(String text) {
+        if (text == null || text.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Vui lòng nhập thời gian đặt bàn"
+            );
+        }
+
+        try {
+            return LocalDateTime.parse(
+                    text.trim(),
+                    RESERVATION_TIME_FORMAT
+            );
+        } catch (DateTimeParseException exception) {
+            throw new IllegalArgumentException(
+                    "Thời gian không hợp lệ. Vui lòng nhập đúng định dạng "
+                            + "yyyy-MM-dd HH:mm và là ngày giờ có thật"
+            );
+        }
     }
 
     /**
